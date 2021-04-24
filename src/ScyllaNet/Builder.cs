@@ -669,7 +669,7 @@ namespace Scylla.Net
         /// <param name="username"> the user name to use to login to Cassandra hosts.</param>
         /// <param name="password"> the password corresponding to </param>
         /// <returns>this Builder</returns>
-        public Builder WithCredentials(String username, String password)
+        public Builder WithCredentials(string username, string password)
         {
             _addedAuth = true;
             _authInfoProvider = new SimpleAuthInfoProvider().Add("username", username).Add("password", password);

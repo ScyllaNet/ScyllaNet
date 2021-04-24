@@ -21,7 +21,7 @@ namespace Scylla.Net.Connections
     /// </summary>
     internal class HostConnectionPool : IHostConnectionPool
     {
-        private static readonly Logger Logger = new Logger(typeof(HostConnectionPool));
+        private static readonly Logger _logger = new Logger(typeof(HostConnectionPool));
         private const int ConnectionIndexOverflow = int.MaxValue - 1000000;
         private const long BetweenResizeDelay = 2000;
 
@@ -117,14 +117,12 @@ namespace Scylla.Net.Connections
         public async Task<IConnection> BorrowConnectionAsync()
         {
             var connections = await EnsureCreate().ConfigureAwait(false);
-            if (connections.Length == 0)
-            {
-                throw new DriverInternalError("No connection could be borrowed");
-            }
-            
-            return BorrowLeastBusyConnection(connections);
+
+            return connections.Length == 0
+                ? throw new DriverInternalError("No connection could be borrowed")
+                : BorrowLeastBusyConnection(connections);
         }
-        
+
         /// <inheritdoc />
         public IConnection BorrowExistingConnection()
         {
@@ -172,7 +170,7 @@ namespace Scylla.Net.Connections
             {
                 return;
             }
-            HostConnectionPool.Logger.Warning("Connection to {0} considered as unhealthy after {1} timed out operations", 
+            HostConnectionPool._logger.Warning("Connection to {0} considered as unhealthy after {1} timed out operations", 
                 _host.Address, timedOutOps);
             Remove(c);
         }
@@ -212,7 +210,7 @@ namespace Scylla.Net.Connections
                 return;
             }
             _expectedConnectionLength++;
-            HostConnectionPool.Logger.Info("Increasing pool #{0} size to {1}, as in-flight requests are above threshold ({2})", 
+            HostConnectionPool._logger.Info("Increasing pool #{0} size to {1}, as in-flight requests are above threshold ({2})", 
                 GetHashCode(), _expectedConnectionLength, _maxInflightThresholdToConsiderResizing);
             StartCreatingConnection(null);
             _resizingEndTimeout = _timer.NewTimeout(_ => Interlocked.Exchange(ref _poolResizing, 0), null, 
@@ -233,7 +231,7 @@ namespace Scylla.Net.Connections
                 // The pool is already being shutdown, never mind
                 return;
             }
-            HostConnectionPool.Logger.Info("Disposing connection pool #{0} to {1}", GetHashCode(), _host.Address);
+            HostConnectionPool._logger.Info("Disposing connection pool #{0} to {1}", GetHashCode(), _host.Address);
             var connections = _connections.ClearAndGet();
             foreach (var c in connections)
             {
@@ -254,22 +252,24 @@ namespace Scylla.Net.Connections
         public virtual async Task<IConnection> DoCreateAndOpen(bool isReconnection)
         {
             var endPoint = await _config.EndPointResolver.GetConnectionEndPointAsync(_host, isReconnection).ConfigureAwait(false);
-            var c = _config.ConnectionFactory.Create(_serializerManager.GetCurrentSerializer(), endPoint, _config, _observerFactory.CreateConnectionObserver(_host));
+            var connection = _config.ConnectionFactory.Create(_serializerManager.GetCurrentSerializer(), endPoint, _config, _observerFactory.CreateConnectionObserver(_host));
             try
             {
-                await c.Open().ConfigureAwait(false);
+                await connection.Open().ConfigureAwait(false);
             }
             catch
             {
-                c.Dispose();
+                connection.Dispose();
                 throw;
             }
             if (_poolingOptions.GetHeartBeatInterval() > 0)
             {
-                c.OnIdleRequestException += ex => OnIdleRequestException(c, ex);
+                connection.OnIdleRequestException += ex => OnIdleRequestException(connection, ex);
             }
-            c.Closing += OnConnectionClosing;
-            return c;
+
+            connection.Closing += OnConnectionClosing;
+
+            return connection;
         }
         
         public void OnHostRemoved()
@@ -281,7 +281,7 @@ namespace Scylla.Net.Connections
                 Interlocked.Exchange(ref _state, PoolState.Shutdown);
                 return;
             }
-            HostConnectionPool.Logger.Info("Host decommissioned. Closing pool #{0} to {1}", GetHashCode(), _host.Address);
+            HostConnectionPool._logger.Info("Host decommissioned. Closing pool #{0} to {1}", GetHashCode(), _host.Address);
 
             DrainConnections(() => Interlocked.Exchange(ref _state, PoolState.Shutdown));
 
@@ -306,8 +306,11 @@ namespace Scylla.Net.Connections
         /// <param name="inFlight">
         /// Out parameter containing the amount of in-flight requests of the selected connection.
         /// </param>
-        public static IConnection MinInFlight(IConnection[] connections, ref int connectionIndex, int inFlightThreshold,
-                                             out int inFlight)
+        public static IConnection MinInFlight(
+            IConnection[] connections,
+            ref int connectionIndex,
+            int inFlightThreshold,
+            out int inFlight)
         {
             if (connections.Length == 1)
             {
@@ -367,7 +370,7 @@ namespace Scylla.Net.Connections
                     // No point in doing them again
                     return;
                 }
-                HostConnectionPool.Logger.Info("Pool #{0} for host {1} removed a connection, new length: {2}",
+                HostConnectionPool._logger.Info("Pool #{0} for host {1} removed a connection, new length: {2}",
                     GetHashCode(), _host.Address, currentLength);
             }
             else
@@ -428,7 +431,7 @@ namespace Scylla.Net.Connections
                 // Is already shutting down or shutdown, don't mind
                 return;
             }
-            HostConnectionPool.Logger.Info("Host ignored. Closing pool #{0} to {1}", GetHashCode(), _host.Address);
+            HostConnectionPool._logger.Info("Host ignored. Closing pool #{0} to {1}", GetHashCode(), _host.Address);
             DrainConnections(() =>
             {
                 // After draining, set the pool back to init state
@@ -446,7 +449,7 @@ namespace Scylla.Net.Connections
             var connections = _connections.ClearAndGet();
             if (connections.Length == 0)
             {
-                HostConnectionPool.Logger.Info("Pool #{0} to {1} had no connections", GetHashCode(), _host.Address);
+                HostConnectionPool._logger.Info("Pool #{0} to {1} had no connections", GetHashCode(), _host.Address);
                 return;
             }
             // The request handler might execute up to 2 queries with a single connection:
@@ -470,12 +473,12 @@ namespace Scylla.Net.Connections
                     var drained = !connections.Any(c => c.HasPendingOperations);
                     if (!drained && --steps >= 0)
                     {
-                        HostConnectionPool.Logger.Info("Pool #{0} to {1} can not be closed yet",
+                        HostConnectionPool._logger.Info("Pool #{0} to {1} can not be closed yet",
                             GetHashCode(), _host.Address);
                         DrainConnectionsTimer(connections, afterDrainHandler, steps);
                         return;
                     }
-                    HostConnectionPool.Logger.Info("Pool #{0} to {1} closing {2} connections to after {3} draining",
+                    HostConnectionPool._logger.Info("Pool #{0} to {1} closing {2} connections to after {3} draining",
                         GetHashCode(), _host.Address, connections.Length, drained ? "successful" : "unsuccessful");
                     foreach (var c in connections)
                     {
@@ -495,7 +498,7 @@ namespace Scylla.Net.Connections
                 // This was the pool that was reconnecting, the pool is already getting the appropriate size
                 return;
             }
-            HostConnectionPool.Logger.Info("Pool #{0} for host {1} attempting to reconnect as host is UP", GetHashCode(), _host.Address);
+            HostConnectionPool._logger.Info("Pool #{0} for host {1} attempting to reconnect as host is UP", GetHashCode(), _host.Address);
             // Schedule an immediate reconnection
             ScheduleReconnection(true);
         }
@@ -512,7 +515,7 @@ namespace Scylla.Net.Connections
         /// </summary>
         private void OnIdleRequestException(IConnection c, Exception ex)
         {
-            HostConnectionPool.Logger.Warning("Connection to {0} considered as unhealthy after idle timeout exception: {1}",
+            HostConnectionPool._logger.Warning("Connection to {0} considered as unhealthy after idle timeout exception: {1}",
                 _host.Address, ex);
             OnConnectionClosing(c);
             c.Dispose();
@@ -538,14 +541,14 @@ namespace Scylla.Net.Connections
             {
                 // Schedule the creation
                 var delay = schedule.NextDelayMs();
-                HostConnectionPool.Logger.Info("Scheduling reconnection from #{0} to {1} in {2}ms", GetHashCode(), _host.Address, delay);
+                HostConnectionPool._logger.Info("Scheduling reconnection from #{0} to {1} in {2}ms", GetHashCode(), _host.Address, delay);
                 timeout = _timer.NewTimeout(_ => Task.Run(() => StartCreatingConnection(schedule)), null, delay);
             }
             CancelNewConnectionTimeout(timeout);
             if (schedule == null)
             {
                 // Start creating immediately after de-scheduling the timer
-                HostConnectionPool.Logger.Info("Starting reconnection from pool #{0} to {1}", GetHashCode(), _host.Address);
+                HostConnectionPool._logger.Info("Starting reconnection from pool #{0} to {1}", GetHashCode(), _host.Address);
                 StartCreatingConnection(null);
             }
         }
@@ -670,42 +673,42 @@ namespace Scylla.Net.Connections
                 return await FinishOpen(tcs, false, null, connectionsSnapshot[0]).ConfigureAwait(false);
             }
 
-            HostConnectionPool.Logger.Info("Creating a new connection to {0}", _host.Address);
-            IConnection c;
+            HostConnectionPool._logger.Info("Creating a new connection to {0}", _host.Address);
+            IConnection connection;
             try
             {
-                c = await DoCreateAndOpen(isReconnection).ConfigureAwait(false);
+                connection = await DoCreateAndOpen(isReconnection).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                HostConnectionPool.Logger.Info("Connection to {0} could not be created: {1}", _host.Address, ex);
+                HostConnectionPool._logger.Info("Connection to {0} could not be created: {1}", _host.Address, ex);
                 return await FinishOpen(tcs, true, ex).ConfigureAwait(false);
             }
 
             if (IsClosing)
             {
-                HostConnectionPool.Logger.Info("Connection to {0} opened successfully but pool #{1} was being closed", 
+                HostConnectionPool._logger.Info("Connection to {0} opened successfully but pool #{1} was being closed", 
                     _host.Address, GetHashCode());
-                c.Dispose();
+                connection.Dispose();
                 return await FinishOpen(tcs, false, HostConnectionPool.GetNotConnectedException()).ConfigureAwait(false);
             }
 
-            var newLength = _connections.AddNew(c);
-            HostConnectionPool.Logger.Info("Connection to {0} opened successfully, pool #{1} length: {2}",
+            var newLength = _connections.AddNew(connection);
+            HostConnectionPool._logger.Info("Connection to {0} opened successfully, pool #{1} length: {2}",
                 _host.Address, GetHashCode(), newLength);
 
             if (IsClosing)
             {
                 // We haven't use a CAS operation, so it's possible that the pool is being closed while adding a new
                 // connection, we should remove it.
-                HostConnectionPool.Logger.Info("Connection to {0} opened successfully and added to the pool #{1} but it was being closed",
+                HostConnectionPool._logger.Info("Connection to {0} opened successfully and added to the pool #{1} but it was being closed",
                     _host.Address, GetHashCode());
-                _connections.Remove(c);
-                c.Dispose();
+                _connections.Remove(connection);
+                connection.Dispose();
                 return await FinishOpen(tcs, false, HostConnectionPool.GetNotConnectedException()).ConfigureAwait(false);
             }
 
-            return await FinishOpen(tcs, true, null, c).ConfigureAwait(false);
+            return await FinishOpen(tcs, true, null, connection).ConfigureAwait(false);
         }
 
         private Task<IConnection> FinishOpen(
@@ -830,23 +833,23 @@ namespace Scylla.Net.Connections
         private async Task<IConnection> GetConnectionFromHostAsync(
             IDictionary<IPEndPoint, Exception> triedHosts, Func<string> getKeyspaceFunc, bool createIfNeeded)
         {
-            IConnection c = null;
+            IConnection connection = null;
             try
             {
                 if (createIfNeeded)
                 {
-                    c = await BorrowConnectionAsync().ConfigureAwait(false);
+                    connection = await BorrowConnectionAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    c = BorrowExistingConnection();
+                    connection = BorrowExistingConnection();
                 }
             }
             catch (UnsupportedProtocolVersionException ex)
             {
                 // The version of the protocol is not supported on this host
                 // Most likely, we are using a higher protocol version than the host supports
-                HostConnectionPool.Logger.Error("Host {0} does not support protocol version {1}. You should use a fixed protocol " +
+                HostConnectionPool._logger.Error("Host {0} does not support protocol version {1}. You should use a fixed protocol " +
                              "version during rolling upgrades of the cluster. Setting the host as DOWN to " +
                              "avoid hitting this node as part of the query plan for a while", _host.Address, ex.ProtocolVersion);
                 triedHosts[_host.Address] = ex;
@@ -854,7 +857,7 @@ namespace Scylla.Net.Connections
             }
             catch (BusyPoolException ex)
             {
-                HostConnectionPool.Logger.Warning(
+                HostConnectionPool._logger.Warning(
                     "All connections to host {0} are busy ({1} requests are in-flight on {2} connection(s))," +
                     " consider lowering the pressure or make more nodes available to the client", _host.Address,
                     ex.MaxRequestsPerConnection, ex.ConnectionLength);
@@ -863,26 +866,26 @@ namespace Scylla.Net.Connections
             catch (Exception ex)
             {
                 // Probably a SocketException/AuthenticationException, move along
-                HostConnectionPool.Logger.Error("Exception while trying borrow a connection from a pool", ex);
+                HostConnectionPool._logger.Error("Exception while trying borrow a connection from a pool", ex);
                 triedHosts[_host.Address] = ex;
             }
 
-            if (c == null)
+            if (connection == null)
             {
                 return null;
             }
 
             try
             {
-                await c.SetKeyspace(getKeyspaceFunc()).ConfigureAwait(false);
+                await connection.SetKeyspace(getKeyspaceFunc()).ConfigureAwait(false);
             }
             catch (SocketException)
             {
-                Remove(c);
+                Remove(connection);
                 throw;
             }
 
-            return c;
+            return connection;
         }
 
         /// <summary>

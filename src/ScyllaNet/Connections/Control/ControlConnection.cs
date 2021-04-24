@@ -1,4 +1,5 @@
-﻿// Copyright (c) 2014-2020 DataStax Inc.
+﻿
+// Copyright (c) 2014-2020 DataStax Inc.
 // Copyright (c) 2020, Rafael Almeida (ralmsdevelper)
 // Licensed under the Apache License, Version 2.0. See LICENCE in the project root for license information.
 
@@ -14,6 +15,7 @@ using Scylla.Net.ProtocolEvents;
 using Scylla.Net.Responses;
 using Scylla.Net.Serialization;
 using Scylla.Net.SessionManagement;
+using Scylla.Net.Sharding;
 using Scylla.Net.Tasks;
 
 namespace Scylla.Net.Connections.Control
@@ -325,9 +327,12 @@ namespace Scylla.Net.Connections.Control
                         {
                             await _supportedOptionsInitializer.ApplySupportedOptionsAsync(connection).ConfigureAwait(false);
                         }
-
+                         
                         var currentHost = await _topologyRefresher.RefreshNodeListAsync(
-                            endPoint, connection, _serializer.GetCurrentSerializer()).ConfigureAwait(false);
+                            endPoint,
+                            connection,
+                            _serializer.GetCurrentSerializer())
+                            .ConfigureAwait(false);
 
                         SetCurrentConnection(currentHost, endPoint);
 
@@ -637,6 +642,7 @@ namespace Scylla.Net.Connections.Control
             _host = host;
             _currentConnectionEndPoint = endPoint;
             _metadata.SetCassandraVersion(host.CassandraVersion);
+            _host.SetShardingInfo(_supportedOptionsInitializer.ConnectionShardingInfo.GetShardingInfo());
         }
 
         /// <summary>

@@ -13,19 +13,19 @@ namespace Scylla.Net
     {
         public object ReceivedType { get; private set; }
         public object[] ExpectedType { get; private set; }
-        public String ParamName { get; private set; }
+        public string ParamName { get; private set; }
 
-        public InvalidTypeException(String msg)
+        public InvalidTypeException(string msg)
             : base(msg)
         {
         }
 
-        public InvalidTypeException(String msg, Exception cause)
+        public InvalidTypeException(string msg, Exception cause)
             : base(msg, cause)
         {
         }
 
-        public InvalidTypeException(String paramName, object receivedType, object[] expectedType)
+        public InvalidTypeException(string paramName, object receivedType, object[] expectedType)
             : base(string.Format("Received object of type: {0}, expected: {1} {2}. Parameter name that caused exception: {3}",
                                  receivedType, expectedType[0], expectedType.Length > 1 ? "or" + expectedType[1] : "", paramName))
         {

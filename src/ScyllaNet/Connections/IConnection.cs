@@ -123,5 +123,8 @@ namespace Scylla.Net.Connections
         /// If the keyspace is different from the current value, it sends a Query request to change it
         /// </summary>
         Task<bool> SetKeyspace(string value);
+
+        void SetShardId(int? shardId);
+        int? GetShardId();
     }
 }
