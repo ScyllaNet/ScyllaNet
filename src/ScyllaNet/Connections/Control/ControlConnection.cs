@@ -15,6 +15,7 @@ using Scylla.Net.ProtocolEvents;
 using Scylla.Net.Responses;
 using Scylla.Net.Serialization;
 using Scylla.Net.SessionManagement;
+using Scylla.Net.Sharding;
 using Scylla.Net.Tasks;
 
 namespace Scylla.Net.Connections.Control
@@ -324,11 +325,14 @@ namespace Scylla.Net.Connections.Control
 
                         if (isInitializing)
                         {
-                            await _supportedOptionsInitializer.ApplySupportedOptionsAsync(connection, _host).ConfigureAwait(false);
+                            await _supportedOptionsInitializer.ApplySupportedOptionsAsync(connection).ConfigureAwait(false);
                         }
-
+                         
                         var currentHost = await _topologyRefresher.RefreshNodeListAsync(
-                            endPoint, connection, _serializer.GetCurrentSerializer()).ConfigureAwait(false);
+                            endPoint,
+                            connection,
+                            _serializer.GetCurrentSerializer())
+                            .ConfigureAwait(false);
 
                         SetCurrentConnection(currentHost, endPoint);
 
@@ -638,6 +642,7 @@ namespace Scylla.Net.Connections.Control
             _host = host;
             _currentConnectionEndPoint = endPoint;
             _metadata.SetCassandraVersion(host.CassandraVersion);
+            _host.SetShardingInfo(_supportedOptionsInitializer.ConnectionShardingInfo.GetShardingInfo());
         }
 
         /// <summary>

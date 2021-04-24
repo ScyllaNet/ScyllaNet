@@ -32,7 +32,7 @@ namespace Scylla.Net.Connections
         private const string StreamReadTag = nameof(Connection) + "/Read";
         private const string StreamWriteTag = nameof(Connection) + "/Write";
 
-        private static readonly Logger Logger = new Logger(typeof(Connection));
+        private static readonly Logger _logger = new Logger(typeof(Connection));
 
         private readonly IStartupRequestFactory _startupRequestFactory;
         private readonly ITcpSocket _tcpSocket;
@@ -47,6 +47,7 @@ namespace Scylla.Net.Connections
         private readonly Timer _idleTimer;
         private long _timedOutOperations;
 
+        private int? _shardId = null;
         /// <summary>
         /// Stores the available stream ids.
         /// </summary>
@@ -273,12 +274,12 @@ namespace Scylla.Net.Connections
             {
                 Closing?.Invoke(this);
 
-                Connection.Logger.Info("Cancelling in Connection {0}, {1} pending operations and write queue {2}", EndPoint.EndpointFriendlyName,
+                Connection._logger.Info("Cancelling in Connection {0}, {1} pending operations and write queue {2}", EndPoint.EndpointFriendlyName,
                     InFlight, _writeQueue.Count);
 
                 if (socketError != null)
                 {
-                    Connection.Logger.Verbose("The socket status received was {0}", socketError.Value);
+                    Connection._logger.Verbose("The socket status received was {0}", socketError.Value);
                 }
             }
             if (ex == null || ex is ObjectDisposedException)
@@ -327,7 +328,7 @@ namespace Scylla.Net.Connections
                 return;
             }
 
-            Connection.Logger.Verbose("Disposing Connection #{0} to {1}.", GetHashCode(), EndPoint.EndpointFriendlyName);
+            Connection._logger.Verbose("Disposing Connection #{0} to {1}.", GetHashCode(), EndPoint.EndpointFriendlyName);
 
             _idleTimer.Dispose();
             _tcpSocket.Dispose();
@@ -342,7 +343,7 @@ namespace Scylla.Net.Connections
         {
             if (!(response is EventResponse))
             {
-                Connection.Logger.Error("Unexpected response type for event: " + response.GetType().Name);
+                Connection._logger.Error("Unexpected response type for event: " + response.GetType().Name);
                 return;
             }
 
@@ -360,12 +361,12 @@ namespace Scylla.Net.Connections
                 if (!IsDisposed)
                 {
                     //If it was not manually disposed
-                    Connection.Logger.Warning("Can not issue an heartbeat request as connection is closed");
+                    Connection._logger.Warning("Can not issue an heartbeat request as connection is closed");
                     OnIdleRequestException?.Invoke(new SocketException((int)SocketError.NotConnected));
                 }
                 return;
             }
-            Connection.Logger.Verbose("Connection idling, issuing a Request to prevent idle disconnects");
+            Connection._logger.Verbose("Connection idling, issuing a Request to prevent idle disconnects");
             var request = new OptionsRequest();
             Send(request, (error, response) =>
             {
@@ -375,7 +376,7 @@ namespace Scylla.Net.Connections
                     //There is a valid response but we don't care about the response
                     return;
                 }
-                Connection.Logger.Warning("Received heartbeat request exception " + error.Exception.ToString());
+                Connection._logger.Warning("Received heartbeat request exception " + error.Exception.ToString());
                 if (error.Exception is SocketException)
                 {
                     OnIdleRequestException?.Invoke(error.Exception);
@@ -394,7 +395,7 @@ namespace Scylla.Net.Connections
             try
             {
                 var response = await DoOpen().ConfigureAwait(false);
-                Connection.Logger.Verbose("Opened Connection #{0} to {1}.", GetHashCode(), EndPoint.EndpointFriendlyName);
+                Connection._logger.Verbose("Opened Connection #{0} to {1}.", GetHashCode(), EndPoint.EndpointFriendlyName);
                 return response;
             }
             catch (Exception exception)
@@ -551,7 +552,7 @@ namespace Scylla.Net.Connections
                         break;
                     }
 
-                    Connection.Logger.Verbose("Received #{0} from {1}", header.StreamId, EndPoint.EndpointFriendlyName);
+                    Connection._logger.Verbose("Received #{0} from {1}", header.StreamId, EndPoint.EndpointFriendlyName);
                     remainingBodyLength = header.BodyLength;
                 }
                 else
@@ -862,10 +863,10 @@ namespace Scylla.Net.Connections
                     //Queue it up for later.
                     _writeQueue.Enqueue(state);
                     //When receiving the next complete message, we can process it.
-                    Connection.Logger.Info("Enqueued, no streamIds available. If this message is recurrent consider configuring more connections per host or lower the pressure");
+                    Connection._logger.Info("Enqueued, no streamIds available. If this message is recurrent consider configuring more connections per host or lower the pressure");
                     break;
                 }
-                Connection.Logger.Verbose("Sending #{0} for {1} to {2}", streamId, state.Request.GetType().Name, EndPoint.EndpointFriendlyName);
+                Connection._logger.Verbose("Sending #{0} for {1} to {2}", streamId, state.Request.GetType().Name, EndPoint.EndpointFriendlyName);
                 if (_isCanceled)
                 {
                     DecrementInFlight();
@@ -885,7 +886,7 @@ namespace Scylla.Net.Connections
                 catch (Exception ex)
                 {
                     //There was an error while serializing or begin sending
-                    Connection.Logger.Error(ex);
+                    Connection._logger.Error(ex);
                     //The request was not written, clear it from pending operations
                     RemoveFromPending(streamId);
                     //Callback with the Exception
@@ -971,7 +972,7 @@ namespace Scylla.Net.Connections
                 // but another thread might have changed it in the meantime
                 if (_keyspace != value)
                 {
-                    Connection.Logger.Info("Connection to host {0} switching to keyspace {1}", EndPoint.EndpointFriendlyName, value);
+                    Connection._logger.Info("Connection to host {0} switching to keyspace {1}", EndPoint.EndpointFriendlyName, value);
                     var request = new QueryRequest(Serializer, $"USE \"{value}\"", QueryProtocolOptions.Default, false, null);
                     try
                     {
@@ -1037,5 +1038,9 @@ namespace Scylla.Net.Connections
             //It will use a new thread
             RunWriteQueue();
         }
+
+        public void SetShardId(int? shardId) => _shardId = shardId;
+
+        public int? GetShardId() => _shardId;
     }
 }

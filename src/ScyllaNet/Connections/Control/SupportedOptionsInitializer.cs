@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Scylla.Net.Requests;
 using Scylla.Net.Responses;
+using Scylla.Net.Sharding;
 
 namespace Scylla.Net.Connections.Control
 {
@@ -14,6 +15,7 @@ namespace Scylla.Net.Connections.Control
     {
         private const string SupportedProductTypeKey = "PRODUCT_TYPE";
         private const string SupportedDbaas = "DATASTAX_APOLLO";
+        private ConnectionShardingInfo _connectionShardingInfo;
 
         private readonly Metadata _metadata;
 
@@ -22,7 +24,7 @@ namespace Scylla.Net.Connections.Control
             _metadata = metadata;
         }
 
-        public async Task ApplySupportedOptionsAsync(IConnection connection, Host host)
+        public async Task ApplySupportedOptionsAsync(IConnection connection)
         {
             var request = new OptionsRequest();
             var response = await connection.Send(request).ConfigureAwait(false);
@@ -37,15 +39,18 @@ namespace Scylla.Net.Connections.Control
                 throw new DriverInternalError("Expected SupportedResponse, obtained " + response.GetType().FullName);
             }
 
-            ParseShardingAware(supportedResponse.Output.Options, connection, host);
+            ApplyConnectionShardingInfo(supportedResponse.Output.Options, connection);
             ApplyProductTypeOption(supportedResponse.Output.Options);
         }
 
-        private void ParseShardingAware(IDictionary<string, string[]> options,IConnection connection, Host host)
+        private void ApplyConnectionShardingInfo(IDictionary<string, string[]> options, IConnection connection)
         {
-            var sharding = Sharding.ConnectionShardingInfo.ParseShardingInfo(options);
-            host.SetShardingInfo(sharding.GetShardingInfo());
+            _connectionShardingInfo = ConnectionShardingInfo.ParseShardingInfo(options);
+
+            connection.SetShardId(_connectionShardingInfo.GetShardId());
         }
+
+        public ConnectionShardingInfo ConnectionShardingInfo => _connectionShardingInfo;
 
         private void ApplyProductTypeOption(IDictionary<string, string[]> options)
         {

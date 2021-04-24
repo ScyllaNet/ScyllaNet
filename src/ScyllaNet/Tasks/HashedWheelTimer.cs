@@ -306,10 +306,10 @@ namespace Scylla.Net.Tasks
             private const int CancelledState = 2;
             //Use fields instead of properties as micro optimization
             //More 100 thousand timeout items could be created and GC collected each second
-            private object _actionState;
-            private Action<object> _action;
+            private readonly object _actionState;
+            private readonly Action<object> _action;
             private int _state = InitState;
-            private HashedWheelTimer _timer;
+            private readonly HashedWheelTimer _timer;
 
             internal long Rounds;
 
