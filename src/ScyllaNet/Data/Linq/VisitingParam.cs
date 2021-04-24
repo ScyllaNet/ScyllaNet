@@ -41,8 +41,8 @@ namespace Scylla.Net.Data.Linq
 
             public ClauseLock(Stack<T> stack, T val)
             {
-                this._stack = stack;
-                this._stack.Push(val);
+                _stack = stack;
+                _stack.Push(val);
             }
 
             void IDisposable.Dispose()

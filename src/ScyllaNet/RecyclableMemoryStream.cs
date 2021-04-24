@@ -69,14 +69,14 @@ namespace Microsoft.IO
         /// Unique identifier for this stream across it's entire lifetime
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-        internal Guid Id { get { this.CheckDisposed(); return this.id; } }
+        internal Guid Id { get { CheckDisposed(); return id; } }
 
         private readonly string tag;
         /// <summary>
         /// A temporary identifier for the current usage of this stream.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
-        internal string Tag { get { this.CheckDisposed(); return this.tag; } }
+        internal string Tag { get { CheckDisposed(); return tag; } }
 
         private readonly RecyclableMemoryStreamManager memoryManager;
 
@@ -88,8 +88,8 @@ namespace Microsoft.IO
         {
             get
             {
-                this.CheckDisposed();
-                return this.memoryManager;
+                CheckDisposed();
+                return memoryManager;
             }
         }
 
@@ -102,13 +102,13 @@ namespace Microsoft.IO
         /// Callstack of the constructor. It is only set if MemoryManager.GenerateCallStacks is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string AllocationStack { get { return this.allocationStack; } }
+        internal string AllocationStack { get { return allocationStack; } }
 
         /// <summary>
         /// Callstack of the Dispose call. It is only set if MemoryManager.GenerateCallStacks is true,
         /// which should only be in debugging situations.
         /// </summary>
-        internal string DisposeStack { get { return this.disposeStack; } }
+        internal string DisposeStack { get { return disposeStack; } }
 
         /// <summary>
         /// This buffer exists so that WriteByte can forward all of its calls to Write
@@ -158,7 +158,7 @@ namespace Microsoft.IO
                                       byte[] initialLargeBuffer)
         {
             this.memoryManager = memoryManager;
-            this.id = Guid.NewGuid();
+            id = Guid.NewGuid();
             this.tag = tag;
 
             if (requestedSize < memoryManager.BlockSize)
@@ -168,18 +168,18 @@ namespace Microsoft.IO
 
             if (initialLargeBuffer == null)
             {
-                this.EnsureCapacity(requestedSize);
+                EnsureCapacity(requestedSize);
             }
             else
             {
-                this.largeBuffer = initialLargeBuffer;
+                largeBuffer = initialLargeBuffer;
             }
 
-            this.disposed = false;
+            disposed = false;
 
             if (this.memoryManager.GenerateCallStacks)
             {
-                this.allocationStack = Environment.StackTrace;
+                allocationStack = Environment.StackTrace;
             }
 
             this.memoryManager.ReportStreamCreated();
@@ -200,10 +200,10 @@ namespace Microsoft.IO
         /// <remarks>This method is not thread safe and it may not be called more than once.</remarks>
         protected override void Dispose(bool disposing)
         {
-            if (this.disposed)
+            if (disposed)
             {
                 string doubleDisposeStack = null;
-                if (this.memoryManager.GenerateCallStacks)
+                if (memoryManager.GenerateCallStacks)
                 {
                     doubleDisposeStack = Environment.StackTrace;
                 }
@@ -211,17 +211,17 @@ namespace Microsoft.IO
                 return;
             }
 
-            if (this.memoryManager.GenerateCallStacks)
+            if (memoryManager.GenerateCallStacks)
             {
-                this.disposeStack = Environment.StackTrace;
+                disposeStack = Environment.StackTrace;
             }
 
             if (disposing)
             {
                 // Once this flag is set, we can't access any properties -- use fields directly
-                this.disposed = true;
+                disposed = true;
 
-                this.memoryManager.ReportStreamDisposed();
+                memoryManager.ReportStreamDisposed();
 
                 GC.SuppressFinalize(this);
             }
@@ -236,25 +236,25 @@ namespace Microsoft.IO
                     base.Dispose(disposing);
                     return;
                 }
-                this.memoryManager.ReportStreamFinalized();
+                memoryManager.ReportStreamFinalized();
             }
 
-            this.memoryManager.ReportStreamLength(this.length);
+            memoryManager.ReportStreamLength(length);
 
-            if (this.largeBuffer != null)
+            if (largeBuffer != null)
             {
-                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.tag);
+                memoryManager.ReturnLargeBuffer(largeBuffer, tag);
             }
 
-            if (this.dirtyBuffers != null)
+            if (dirtyBuffers != null)
             {
-                foreach (var buffer in this.dirtyBuffers)
+                foreach (var buffer in dirtyBuffers)
                 {
-                    this.memoryManager.ReturnLargeBuffer(buffer, this.tag);
+                    memoryManager.ReturnLargeBuffer(buffer, tag);
                 }
             }
 
-            this.memoryManager.ReturnBlocks(this.blocks, this.tag);
+            memoryManager.ReturnBlocks(blocks, tag);
 
             base.Dispose(disposing);
         }
@@ -264,7 +264,7 @@ namespace Microsoft.IO
         /// </summary>
         public override void Close()
         {
-            this.Dispose(true);
+            Dispose(true);
         }
 
         #endregion
@@ -284,22 +284,22 @@ namespace Microsoft.IO
         {
             get
             {
-                this.CheckDisposed();
-                if (this.largeBuffer != null)
+                CheckDisposed();
+                if (largeBuffer != null)
                 {
-                    return this.largeBuffer.Length;
+                    return largeBuffer.Length;
                 }
 
-                if (this.blocks.Count > 0)
+                if (blocks.Count > 0)
                 {
-                    return this.blocks.Count * this.memoryManager.BlockSize;
+                    return blocks.Count * memoryManager.BlockSize;
                 }
                 return 0;
             }
             set
             {
-                this.CheckDisposed();
-                this.EnsureCapacity(value);
+                CheckDisposed();
+                EnsureCapacity(value);
             }
         }
 
@@ -313,8 +313,8 @@ namespace Microsoft.IO
         {
             get
             {
-                this.CheckDisposed();
-                return this.length;
+                CheckDisposed();
+                return length;
             }
         }
 
@@ -328,12 +328,12 @@ namespace Microsoft.IO
         {
             get
             {
-                this.CheckDisposed();
-                return this.position;
+                CheckDisposed();
+                return position;
             }
             set
             {
-                this.CheckDisposed();
+                CheckDisposed();
                 if (value < 0)
                 {
                     throw new ArgumentOutOfRangeException("value", "value must be non-negative");
@@ -344,7 +344,7 @@ namespace Microsoft.IO
                     throw new ArgumentOutOfRangeException("value", "value cannot be more than " + MaxStreamLength);
                 }
 
-                this.position = (int)value;
+                position = (int)value;
             }
         }
 
@@ -353,7 +353,7 @@ namespace Microsoft.IO
         /// </summary>
         public override bool CanRead
         {
-            get { return !this.disposed; }
+            get { return !disposed; }
         }
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace Microsoft.IO
         /// </summary>
         public override bool CanSeek
         {
-            get { return !this.disposed; }
+            get { return !disposed; }
         }
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace Microsoft.IO
         /// </summary>
         public override bool CanWrite
         {
-            get { return !this.disposed; }
+            get { return !disposed; }
         }
 
         /// <summary>
@@ -390,36 +390,36 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override byte[] GetBuffer()
         {
-            this.CheckDisposed();
+            CheckDisposed();
 
-            if (this.largeBuffer != null)
+            if (largeBuffer != null)
             {
-                return this.largeBuffer;
+                return largeBuffer;
             }
 
-            if (this.blocks.Count == 1)
+            if (blocks.Count == 1)
             {
-                return this.blocks[0];
+                return blocks[0];
             }
 
             // Buffer needs to reflect the capacity, not the length, because
             // it's possible that people will manipulate the buffer directly
             // and set the length afterward. Capacity sets the expectation
             // for the size of the buffer.
-            var newBuffer = this.memoryManager.GetLargeBuffer(this.Capacity, tag);
+            var newBuffer = memoryManager.GetLargeBuffer(Capacity, tag);
 
             // InternalRead will check for existence of largeBuffer, so make sure we
             // don't set it until after we've copied the data.
-            this.InternalRead(newBuffer, 0, this.length, 0);
-            this.largeBuffer = newBuffer;
+            InternalRead(newBuffer, 0, length, 0);
+            largeBuffer = newBuffer;
 
-            if (this.blocks.Count > 0 && this.memoryManager.AggressiveBufferReturn)
+            if (blocks.Count > 0 && memoryManager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnBlocks(this.blocks, this.tag);
-                this.blocks.Clear();
+                memoryManager.ReturnBlocks(blocks, tag);
+                blocks.Clear();
             }
 
-            return this.largeBuffer;
+            return largeBuffer;
         }
 
         /// <summary>
@@ -430,11 +430,11 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override byte[] ToArray()
         {
-            this.CheckDisposed();
-            var newBuffer = new byte[this.Length];
+            CheckDisposed();
+            var newBuffer = new byte[Length];
 
-            this.InternalRead(newBuffer, 0, this.length, 0);
-            this.memoryManager.ReportStreamToArray();
+            InternalRead(newBuffer, 0, length, 0);
+            memoryManager.ReportStreamToArray();
 
             return newBuffer;
         }
@@ -452,7 +452,7 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            this.CheckDisposed();
+            CheckDisposed();
             if (buffer == null)
             {
                 throw new ArgumentNullException("buffer");
@@ -473,8 +473,8 @@ namespace Microsoft.IO
                 throw new ArgumentException("buffer length must be at least offset + count");
             }
 
-            var amountRead = this.InternalRead(buffer, offset, count, this.position);
-            this.position += amountRead;
+            var amountRead = InternalRead(buffer, offset, count, position);
+            position += amountRead;
             return amountRead;
         }
 
@@ -490,7 +490,7 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            this.CheckDisposed();
+            CheckDisposed();
             if (buffer == null)
             {
                 throw new ArgumentNullException("buffer");
@@ -511,8 +511,8 @@ namespace Microsoft.IO
                 throw new ArgumentException("count must be greater than buffer.Length - offset");
             }
 
-            var blockSize = this.memoryManager.BlockSize;
-            var end = (long)this.position + count;
+            var blockSize = memoryManager.BlockSize;
+            var end = (long)position + count;
             // Check for overflow
             if (end > MaxStreamLength)
             {
@@ -526,17 +526,17 @@ namespace Microsoft.IO
                 throw new IOException("Maximum capacity exceeded");
             }
 
-            this.EnsureCapacity((int)end);
+            EnsureCapacity((int)end);
 
-            if (this.largeBuffer == null)
+            if (largeBuffer == null)
             {
                 var bytesRemaining = count;
                 var bytesWritten = 0;
-                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
+                var blockAndOffset = GetBlockAndRelativeOffset(position);
 
                 while (bytesRemaining > 0)
                 {
-                    var currentBlock = this.blocks[blockAndOffset.Block];
+                    var currentBlock = blocks[blockAndOffset.Block];
                     var remainingInBlock = blockSize - blockAndOffset.Offset;
                     var amountToWriteInBlock = Math.Min(remainingInBlock, bytesRemaining);
 
@@ -551,10 +551,10 @@ namespace Microsoft.IO
             }
             else
             {
-                Buffer.BlockCopy(buffer, offset, this.largeBuffer, this.position, count);
+                Buffer.BlockCopy(buffer, offset, largeBuffer, position, count);
             }
-            this.position = (int)end;
-            this.length = Math.Max(this.position, this.length);
+            position = (int)end;
+            length = Math.Max(position, length);
         }
 
         /// <summary>
@@ -562,7 +562,7 @@ namespace Microsoft.IO
         /// </summary>
         public override string ToString()
         {
-            return string.Format("Id = {0}, Tag = {1}, Length = {2:N0} bytes", this.Id, this.Tag, this.Length);
+            return string.Format("Id = {0}, Tag = {1}, Length = {2:N0} bytes", Id, Tag, Length);
         }
 
         /// <summary>
@@ -572,9 +572,9 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override void WriteByte(byte value)
         {
-            this.CheckDisposed();
-            this.byteBuffer[0] = value;
-            this.Write(this.byteBuffer, 0, 1);
+            CheckDisposed();
+            byteBuffer[0] = value;
+            Write(byteBuffer, 0, 1);
         }
 
         /// <summary>
@@ -584,22 +584,22 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override int ReadByte()
         {
-            this.CheckDisposed();
-            if (this.position == this.length)
+            CheckDisposed();
+            if (position == length)
             {
                 return -1;
             }
             byte value = 0;
-            if (this.largeBuffer == null)
+            if (largeBuffer == null)
             {
-                var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
-                value = this.blocks[blockAndOffset.Block][blockAndOffset.Offset];
+                var blockAndOffset = GetBlockAndRelativeOffset(position);
+                value = blocks[blockAndOffset.Block][blockAndOffset.Offset];
             }
             else
             {
-                value = this.largeBuffer[position];
+                value = largeBuffer[position];
             }
-            this.position++;
+            position++;
             return value;
         }
 
@@ -610,18 +610,18 @@ namespace Microsoft.IO
         /// <exception cref="ObjectDisposedException">Object has been disposed</exception>
         public override void SetLength(long value)
         {
-            this.CheckDisposed();
+            CheckDisposed();
             if (value < 0 || value > MaxStreamLength)
             {
                 throw new ArgumentOutOfRangeException("value", "value must be non-negative and at most " + MaxStreamLength);
             }
 
-            this.EnsureCapacity((int)value);
+            EnsureCapacity((int)value);
 
-            this.length = (int)value;
-            if (this.position > value)
+            length = (int)value;
+            if (position > value)
             {
-                this.position = (int)value;
+                position = (int)value;
             }
         }
 
@@ -637,7 +637,7 @@ namespace Microsoft.IO
         /// <exception cref="IOException">Attempt to set negative position</exception>
         public override long Seek(long offset, SeekOrigin loc)
         {
-            this.CheckDisposed();
+            CheckDisposed();
             if (offset > MaxStreamLength)
             {
                 throw new ArgumentOutOfRangeException("offset", "offset cannot be larger than " + MaxStreamLength);
@@ -650,10 +650,10 @@ namespace Microsoft.IO
                     newPosition = (int)offset;
                     break;
                 case SeekOrigin.Current:
-                    newPosition = (int)offset + this.position;
+                    newPosition = (int)offset + position;
                     break;
                 case SeekOrigin.End:
-                    newPosition = (int)offset + this.length;
+                    newPosition = (int)offset + length;
                     break;
                 default:
                     throw new ArgumentException("Invalid seek origin", "loc");
@@ -662,8 +662,8 @@ namespace Microsoft.IO
             {
                 throw new IOException("Seek before beginning");
             }
-            this.position = newPosition;
-            return this.position;
+            position = newPosition;
+            return position;
         }
 
         /// <summary>
@@ -673,21 +673,21 @@ namespace Microsoft.IO
         /// <remarks>Important: This does a synchronous write, which may not be desired in some situations</remarks>
         public override void WriteTo(Stream stream)
         {
-            this.CheckDisposed();
+            CheckDisposed();
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
 
-            if (this.largeBuffer == null)
+            if (largeBuffer == null)
             {
                 var currentBlock = 0;
-                var bytesRemaining = this.length;
+                var bytesRemaining = length;
 
                 while (bytesRemaining > 0)
                 {
-                    var amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
-                    stream.Write(this.blocks[currentBlock], 0, amountToCopy);
+                    var amountToCopy = Math.Min(blocks[currentBlock].Length, bytesRemaining);
+                    stream.Write(blocks[currentBlock], 0, amountToCopy);
 
                     bytesRemaining -= amountToCopy;
 
@@ -696,7 +696,7 @@ namespace Microsoft.IO
             }
             else
             {
-                stream.Write(this.largeBuffer, 0, this.length);
+                stream.Write(largeBuffer, 0, length);
             }
         }
         #endregion
@@ -704,28 +704,28 @@ namespace Microsoft.IO
         #region Helper Methods
         private void CheckDisposed()
         {
-            if (this.disposed)
+            if (disposed)
             {
-                throw new ObjectDisposedException(string.Format("The stream with Id {0} and Tag {1} is disposed.", this.id, this.tag));
+                throw new ObjectDisposedException(string.Format("The stream with Id {0} and Tag {1} is disposed.", id, tag));
             }
         }
 
         private int InternalRead(byte[] buffer, int offset, int count, int fromPosition)
         {
-            if (this.length - fromPosition <= 0)
+            if (length - fromPosition <= 0)
             {
                 return 0;
             }
-            if (this.largeBuffer == null)
+            if (largeBuffer == null)
             {
-                var blockAndOffset = this.GetBlockAndRelativeOffset(fromPosition);
+                var blockAndOffset = GetBlockAndRelativeOffset(fromPosition);
                 var bytesWritten = 0;
-                var bytesRemaining = Math.Min(count, this.length - fromPosition);
+                var bytesRemaining = Math.Min(count, length - fromPosition);
 
                 while (bytesRemaining > 0)
                 {
-                    var amountToCopy = Math.Min(this.blocks[blockAndOffset.Block].Length - blockAndOffset.Offset, bytesRemaining);
-                    Buffer.BlockCopy(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, buffer, bytesWritten + offset, amountToCopy);
+                    var amountToCopy = Math.Min(blocks[blockAndOffset.Block].Length - blockAndOffset.Offset, bytesRemaining);
+                    Buffer.BlockCopy(blocks[blockAndOffset.Block], blockAndOffset.Offset, buffer, bytesWritten + offset, amountToCopy);
 
                     bytesWritten += amountToCopy;
                     bytesRemaining -= amountToCopy;
@@ -737,8 +737,8 @@ namespace Microsoft.IO
             }
             else
             {
-                var amountToCopy = Math.Min(count, this.length - fromPosition);
-                Buffer.BlockCopy(this.largeBuffer, fromPosition, buffer, offset, amountToCopy);
+                var amountToCopy = Math.Min(count, length - fromPosition);
+                Buffer.BlockCopy(largeBuffer, fromPosition, buffer, offset, amountToCopy);
                 return amountToCopy;
             }
         }
@@ -750,39 +750,39 @@ namespace Microsoft.IO
 
             public BlockAndOffset(int block, int offset)
             {
-                this.Block = block;
-                this.Offset = offset;
+                Block = block;
+                Offset = offset;
             }
         }
 
         private BlockAndOffset GetBlockAndRelativeOffset(int offset)
         {
-            var blockSize = this.memoryManager.BlockSize;
+            var blockSize = memoryManager.BlockSize;
             return new BlockAndOffset(offset / blockSize, offset % blockSize);
         }
 
         private void EnsureCapacity(int newCapacity)
         {
-            if (newCapacity > this.memoryManager.MaximumStreamCapacity && this.memoryManager.MaximumStreamCapacity > 0)
+            if (newCapacity > memoryManager.MaximumStreamCapacity && memoryManager.MaximumStreamCapacity > 0)
             {
-                throw new InvalidOperationException("Requested capacity is too large: " + newCapacity + ". Limit is " + this.memoryManager.MaximumStreamCapacity);
+                throw new InvalidOperationException("Requested capacity is too large: " + newCapacity + ". Limit is " + memoryManager.MaximumStreamCapacity);
             }
 
-            if (this.largeBuffer != null)
+            if (largeBuffer != null)
             {
-                if (newCapacity > this.largeBuffer.Length)
+                if (newCapacity > largeBuffer.Length)
                 {
-                    var newBuffer = this.memoryManager.GetLargeBuffer(newCapacity, tag);
-                    this.InternalRead(newBuffer, 0, this.length, 0);
-                    this.ReleaseLargeBuffer();
-                    this.largeBuffer = newBuffer;
+                    var newBuffer = memoryManager.GetLargeBuffer(newCapacity, tag);
+                    InternalRead(newBuffer, 0, length, 0);
+                    ReleaseLargeBuffer();
+                    largeBuffer = newBuffer;
                 }
             }
             else
             {
-                while (this.Capacity < newCapacity)
+                while (Capacity < newCapacity)
                 {
-                    blocks.Add((this.memoryManager.GetBlock()));
+                    blocks.Add((memoryManager.GetBlock()));
                 }
             }
         }
@@ -792,21 +792,21 @@ namespace Microsoft.IO
         /// </summary>
         private void ReleaseLargeBuffer()
         {
-            if (this.memoryManager.AggressiveBufferReturn)
+            if (memoryManager.AggressiveBufferReturn)
             {
-                this.memoryManager.ReturnLargeBuffer(this.largeBuffer, this.tag);
+                memoryManager.ReturnLargeBuffer(largeBuffer, tag);
             }
             else
             {
-                if (this.dirtyBuffers == null)
+                if (dirtyBuffers == null)
                 {
                     // We most likely will only ever need space for one
-                    this.dirtyBuffers = new List<byte[]>(1);
+                    dirtyBuffers = new List<byte[]>(1);
                 }
-                this.dirtyBuffers.Add(this.largeBuffer);
+                dirtyBuffers.Add(largeBuffer);
             }
 
-            this.largeBuffer = null;
+            largeBuffer = null;
         }
         #endregion
 

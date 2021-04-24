@@ -107,10 +107,7 @@ namespace Scylla.Net
         /// <returns>the pooling options that will be used by this builder. You can use
         ///  the returned object to define the initial pooling options for the built
         ///  cluster.</returns>
-        public PoolingOptions PoolingOptions
-        {
-            get { return _poolingOptions; }
-        }
+        public PoolingOptions PoolingOptions => _poolingOptions;
 
         /// <summary>
         ///  The socket options used by this builder.
@@ -119,10 +116,7 @@ namespace Scylla.Net
         /// <returns>the socket options that will be used by this builder. You can use
         ///  the returned object to define the initial socket options for the built
         ///  cluster.</returns>
-        public SocketOptions SocketOptions
-        {
-            get { return _socketOptions; }
-        }
+        public SocketOptions SocketOptions => _socketOptions;
 
         /// <summary>
         /// Gets the contact points that were added as <c>IPEndPoint"</c> instances.
@@ -132,11 +126,8 @@ namespace Scylla.Net
         /// the port number, which is performed on <see cref="Build()"/>.
         /// </para>
         /// </summary>
-        public ICollection<IPEndPoint> ContactPoints
-        {
-            get { return _contactPoints.Select(c => c as IPEndPoint).Where(c => c != null).ToList(); }
-        }
-        
+        public ICollection<IPEndPoint> ContactPoints => _contactPoints.Select(c => c as IPEndPoint).Where(c => c != null).ToList();
+
         /// <summary>
         ///  The configuration that will be used for the new cluster. <p> You <b>should
         ///  not</b> modify this object directly as change made to the returned object may
@@ -1214,7 +1205,7 @@ namespace Scylla.Net
             var clusterMetadata = Task.Run(
                 () => metadata.GetClusterMetadataAsync(
                     $"https://{bundle.Config.Host}:{bundle.Config.Port}/metadata", 
-                    this.SocketOptions,
+                    SocketOptions,
                     sslOptions)).GetAwaiter().GetResult();
 
             var proxyAddress = clusterMetadata.ContactInfo.SniProxyAddress;
@@ -1231,7 +1222,7 @@ namespace Scylla.Net
             var sniOptions = new SniOptions(address, port, isIp ? null : ipOrName);
             
             var sniEndPointResolver = new SniEndPointResolver(new DnsResolver(), sniOptions);
-            var builder = this.SetContactPoints(new List<object>
+            var builder = SetContactPoints(new List<object>
             {
                 new SniContactPoint(new SortedSet<string>(clusterMetadata.ContactInfo.ContactPoints), sniEndPointResolver)
             });

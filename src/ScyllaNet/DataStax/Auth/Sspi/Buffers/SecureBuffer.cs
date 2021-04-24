@@ -54,9 +54,9 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Buffers
         /// invoking the native API.</param>
         public SecureBuffer( byte[] buffer, BufferType type )
         {
-            this.Buffer = buffer;
-            this.Type = type;
-            this.Length = this.Buffer.Length;
+            Buffer = buffer;
+            Type = type;
+            Length = Buffer.Length;
         }
 
         /// <summary>

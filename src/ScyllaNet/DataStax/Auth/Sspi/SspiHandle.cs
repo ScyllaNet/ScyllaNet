@@ -35,7 +35,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi
         /// <returns></returns>
         public bool IsZero()
         {
-            return this.lowPart == IntPtr.Zero && this.highPart == IntPtr.Zero;
+            return lowPart == IntPtr.Zero && highPart == IntPtr.Zero;
         }
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace Scylla.Net.DataStax.Auth.Sspi
         [ReliabilityContract( Consistency.WillNotCorruptState, Cer.Success)]
         public void SetInvalid()
         {
-            this.lowPart = IntPtr.Zero;
-            this.highPart = IntPtr.Zero;
+            lowPart = IntPtr.Zero;
+            highPart = IntPtr.Zero;
         }
     }
 
@@ -62,18 +62,18 @@ namespace Scylla.Net.DataStax.Auth.Sspi
         protected SafeSspiHandle()
             : base( IntPtr.Zero, true )
         {
-            this.rawHandle = new RawSspiHandle();
+            rawHandle = new RawSspiHandle();
         }
 
         public override bool IsInvalid
         {
-            get { return IsClosed || this.rawHandle.IsZero();  }
+            get { return IsClosed || rawHandle.IsZero();  }
         }
 
         [ReliabilityContract( Consistency.WillNotCorruptState, Cer.Success )]
         protected override bool ReleaseHandle()
         {
-            this.rawHandle.SetInvalid();
+            rawHandle.SetInvalid();
             return true;
         }
     }

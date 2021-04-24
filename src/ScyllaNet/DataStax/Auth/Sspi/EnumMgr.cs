@@ -12,7 +12,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi
     {
         public EnumStringAttribute( string text )
         {
-            this.Text = text;
+            Text = text;
         }
 
         public string Text { get; private set; }

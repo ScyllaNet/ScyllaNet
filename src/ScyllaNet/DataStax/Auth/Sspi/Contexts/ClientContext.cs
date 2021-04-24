@@ -73,15 +73,15 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             SecureBuffer serverBuffer;
             SecureBufferAdapter serverAdapter;
             
-            if( this.Disposed )
+            if( Disposed )
             {
                 throw new ObjectDisposedException( "ClientContext" );
             }
-            else if( ( serverToken != null ) && ( this.ContextHandle.IsInvalid ) )
+            else if( ( serverToken != null ) && ( ContextHandle.IsInvalid ) )
             {
                 throw new InvalidOperationException( "Out-of-order usage detected - have a server token, but no previous client token had been created." );
             }
-            else if( ( serverToken == null ) && ( this.ContextHandle.IsInvalid == false ) )
+            else if( ( serverToken == null ) && ( ContextHandle.IsInvalid == false ) )
             {
                 throw new InvalidOperationException( "Must provide the server's response when continuing the init process." );
             }
@@ -89,7 +89,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             // The security package tells us how big its biggest token will be. We'll allocate a buffer
             // that size, and it'll tell us how much it used.
             outTokenBuffer = new SecureBuffer( 
-                new byte[ this.Credential.PackageInfo.MaxTokenLength ], 
+                new byte[ Credential.PackageInfo.MaxTokenLength ], 
                 BufferType.Token 
             );
 
@@ -116,20 +116,20 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             //    points to 128 bits of memory (the struct itself) for where to write the handle numbers.
             using ( outAdapter = new SecureBufferAdapter( outTokenBuffer ) )
             {
-                if ( this.ContextHandle.IsInvalid )
+                if ( ContextHandle.IsInvalid )
                 {
                     status = ContextNativeMethods.InitializeSecurityContext_1(
-                        ref this.Credential.Handle.rawHandle,
+                        ref Credential.Handle.rawHandle,
                         IntPtr.Zero,
-                        this.serverPrinc,
-                        this.requestedAttribs,
+                        serverPrinc,
+                        requestedAttribs,
                         0,
                         SecureBufferDataRep.Network,
                         IntPtr.Zero,
                         0,
-                        ref this.ContextHandle.rawHandle,
+                        ref ContextHandle.rawHandle,
                         outAdapter.Handle,
-                        ref this.finalAttribs,
+                        ref finalAttribs,
                         ref rawExpiry
                     );
                 }
@@ -138,17 +138,17 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
                     using ( serverAdapter = new SecureBufferAdapter( serverBuffer ) )
                     {
                         status = ContextNativeMethods.InitializeSecurityContext_2(
-                            ref this.Credential.Handle.rawHandle,
-                            ref this.ContextHandle.rawHandle,
-                            this.serverPrinc,
-                            this.requestedAttribs,
+                            ref Credential.Handle.rawHandle,
+                            ref ContextHandle.rawHandle,
+                            serverPrinc,
+                            requestedAttribs,
                             0,
                             SecureBufferDataRep.Network,
                             serverAdapter.Handle,
                             0,
-                            ref this.ContextHandle.rawHandle,
+                            ref ContextHandle.rawHandle,
                             outAdapter.Handle,
-                            ref this.finalAttribs,
+                            ref finalAttribs,
                             ref rawExpiry
                         );
                     }

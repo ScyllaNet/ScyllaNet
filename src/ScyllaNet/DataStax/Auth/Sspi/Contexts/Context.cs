@@ -33,12 +33,12 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
         /// <param name="cred"></param>
         protected Context( Credential cred )
         {
-            this.Credential = cred;
+            Credential = cred;
 
-            this.ContextHandle = new SafeContextHandle();
+            ContextHandle = new SafeContextHandle();
 
-            this.Disposed = false;
-            this.Initialized = false;
+            Disposed = false;
+            Initialized = false;
         }
 
         /// <summary>
@@ -72,8 +72,8 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
         /// <param name="expiry">The date and time that the context will expire.</param>
         protected void Initialize( DateTime expiry )
         {
-            this.Expiry = expiry;
-            this.Initialized = true;
+            Expiry = expiry;
+            Initialized = true;
         }
 
         /// <summary>
@@ -91,14 +91,14 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
         /// <param name="disposing">If true, release managed resources, else release only unmanaged resources.</param>
         protected virtual void Dispose( bool disposing )
         {
-            if( this.Disposed ) { return; }
+            if( Disposed ) { return; }
 
             if( disposing )
             {
-                this.ContextHandle.Dispose();
+                ContextHandle.Dispose();
             }
 
-            this.Disposed = true;
+            Disposed = true;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             using( adapter = new SecureBufferAdapter( new[] { trailerBuffer, dataBuffer, paddingBuffer } ) )
             {
                 status = ContextNativeMethods.SafeEncryptMessage(
-                    this.ContextHandle,
+                    ContextHandle,
                     Context.WrapNoEncrypt,
                     adapter,
                     0
@@ -195,7 +195,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             using (var adapter = new SecureBufferAdapter( new[] { dataBuffer, trailerBuffer } ) )
             {
                 status = ContextNativeMethods.SafeDecryptMessage(
-                    this.ContextHandle,
+                    ContextHandle,
                     0,
                     adapter,
                     0
@@ -223,13 +223,13 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             RuntimeHelpers.PrepareConstrainedRegions();
             try
             {
-                this.ContextHandle.DangerousAddRef( ref gotRef );
+                ContextHandle.DangerousAddRef( ref gotRef );
             }
             catch ( Exception )
             {
                 if ( gotRef )
                 {
-                    this.ContextHandle.DangerousRelease();
+                    ContextHandle.DangerousRelease();
                     gotRef = false;
                 }
 
@@ -240,11 +240,11 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
                 if ( gotRef )
                 {
                     status = ContextNativeMethods.QueryContextAttributes_Sizes(
-                        ref this.ContextHandle.rawHandle,
+                        ref ContextHandle.rawHandle,
                         ContextQueryAttrib.Sizes,
                         ref sizes
                     );
-                    this.ContextHandle.DangerousRelease();
+                    ContextHandle.DangerousRelease();
                 }
             }
 
@@ -262,11 +262,11 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
         /// </summary>
         private void CheckLifecycle()
         {
-            if( this.Initialized == false )
+            if( Initialized == false )
             {
                 throw new InvalidOperationException( "The context is not yet fully formed." );
             }
-            else if( this.Disposed )
+            else if( Disposed )
             {
                 throw new ObjectDisposedException( "Context" );
             }

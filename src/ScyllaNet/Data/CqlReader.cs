@@ -16,57 +16,36 @@ namespace Scylla.Net.Data
     /// <inheritdoc />
     public class CqlReader : DbDataReader
     {
-        private readonly Dictionary<string, int> colidx = new Dictionary<string, int>();
-        private readonly IEnumerator<Row> enumerRows;
-        private readonly RowSet popul;
-        private IEnumerable<Row> enumRows;
+        private readonly Dictionary<string, int> _colidx = new Dictionary<string, int>();
+        private readonly IEnumerator<Row> _enumerRows;
+        private readonly RowSet _popul;
+        private readonly IEnumerable<Row> _enumRows;
 
-        public override int Depth
-        {
-            get { return 0; }
-        }
+        public override int Depth => 0;
 
         /// <inheritdoc />
-        public override int FieldCount
-        {
-            get { return popul.Columns.Length; }
-        }
+        public override int FieldCount => _popul.Columns.Length;
 
-        public override bool HasRows
-        {
-            get { return true; }
-        }
+        public override bool HasRows => true;
 
-        public override bool IsClosed
-        {
-            get { return false; }
-        }
+        public override bool IsClosed => false;
 
-        public override int RecordsAffected
-        {
-            get { return -1; }
-        }
+        public override int RecordsAffected => -1;
 
-        public override object this[string name]
-        {
-            get { return GetValue(GetOrdinal(name)); }
-        }
+        public override object this[string name] => GetValue(GetOrdinal(name));
 
-        public override object this[int ordinal]
-        {
-            get { return GetValue(ordinal); }
-        }
+        public override object this[int ordinal] => GetValue(ordinal);
 
         internal CqlReader(RowSet rows)
         {
-            popul = rows;
-            for (var idx = 0; idx < popul.Columns.Length; idx++)
+            _popul = rows;
+            for (var idx = 0; idx < _popul.Columns.Length; idx++)
             {
-                colidx.Add(popul.Columns[idx].Name, idx);
+                _colidx.Add(_popul.Columns[idx].Name, idx);
             }
 
-            enumRows = popul.GetRows();
-            enumerRows = enumRows.GetEnumerator();
+            _enumRows = _popul.GetRows();
+            _enumerRows = _enumRows.GetEnumerator();
         }
 
         public override void Close()
@@ -112,7 +91,7 @@ namespace Scylla.Net.Data
         /// <inheritdoc />
         public override string GetDataTypeName(int ordinal)
         {
-            return popul.Columns[ordinal].TypeCode.ToString();
+            return _popul.Columns[ordinal].TypeCode.ToString();
         }
 
         /// <inheritdoc />
@@ -141,7 +120,7 @@ namespace Scylla.Net.Data
         /// <inheritdoc />
         public override Type GetFieldType(int ordinal)
         {
-            return popul.Columns[ordinal].Type;
+            return _popul.Columns[ordinal].Type;
         }
 
         /// <inheritdoc />
@@ -159,31 +138,31 @@ namespace Scylla.Net.Data
         /// <inheritdoc />
         public override short GetInt16(int ordinal)
         {
-            return (Int16) GetValue(ordinal);
+            return (short) GetValue(ordinal);
         }
 
         /// <inheritdoc />
         public override int GetInt32(int ordinal)
         {
-            return (Int32) GetValue(ordinal);
+            return (int) GetValue(ordinal);
         }
 
         /// <inheritdoc />
         public override long GetInt64(int ordinal)
         {
-            return (Int64) GetValue(ordinal);
+            return (long) GetValue(ordinal);
         }
 
         /// <inheritdoc />
         public override string GetName(int ordinal)
         {
-            return popul.Columns[ordinal].Name;
+            return _popul.Columns[ordinal].Name;
         }
 
         /// <inheritdoc />
         public override int GetOrdinal(string name)
         {
-            return colidx[name];
+            return _colidx[name];
         }
 
         public override string GetString(int ordinal)
@@ -194,36 +173,36 @@ namespace Scylla.Net.Data
         /// <inheritdoc />
         public override object GetValue(int ordinal)
         {
-            return enumerRows.Current[ordinal];
+            return _enumerRows.Current[ordinal];
         }
 
         /// <inheritdoc />
         public override int GetValues(object[] values)
         {
-            for (var i = 0; i < enumerRows.Current.Length; i++)
+            for (var i = 0; i < _enumerRows.Current.Length; i++)
             {
-                values[i] = enumerRows.Current[i];
+                values[i] = _enumerRows.Current[i];
             }
 
-            return enumerRows.Current.Length;
+            return _enumerRows.Current.Length;
         }
 
         /// <inheritdoc />
         public override bool IsDBNull(int ordinal)
         {
-            return enumerRows.Current.IsNull(ordinal);
+            return _enumerRows.Current.IsNull(ordinal);
         }
 
         /// <inheritdoc />
         public override bool NextResult()
         {
-            return enumerRows.MoveNext();
+            return _enumerRows.MoveNext();
         }
 
         /// <inheritdoc />
         public override bool Read()
         {
-            return enumerRows.MoveNext();
+            return _enumerRows.MoveNext();
         }
     }
 }

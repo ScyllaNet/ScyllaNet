@@ -71,7 +71,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi
         {
             get
             {
-                return (int) this.errorCode;
+                return (int) errorCode;
             }
         }
 
@@ -84,9 +84,9 @@ namespace Scylla.Net.DataStax.Auth.Sspi
             {
                 return string.Format( 
                     "{0}. Error Code = '0x{1:X}' - \"{2}\".", 
-                    this.message, 
-                    this.errorCode, 
-                    EnumMgr.ToText(this.errorCode) 
+                    message, 
+                    errorCode, 
+                    EnumMgr.ToText(errorCode) 
                 );
             }
         }

@@ -29,7 +29,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi
         /// <returns></returns>
         public DateTime ToDateTime()
         {
-            var test = (ulong)this.time + (ulong)(TimeStamp.Epoch.Ticks);
+            var test = (ulong)time + (ulong)(TimeStamp.Epoch.Ticks);
 
             // Sometimes the value returned is massive, eg, 0x7fffff154e84ffff, which is a value 
             // somewhere in the year 30848. This would overflow DateTime, since it peaks at 31-Dec-9999.
@@ -41,7 +41,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi
             }
             else
             {
-                return DateTime.FromFileTimeUtc( this.time );
+                return DateTime.FromFileTimeUtc( time );
             }
         }
     }
