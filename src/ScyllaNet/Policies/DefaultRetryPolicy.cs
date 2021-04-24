@@ -48,7 +48,9 @@ namespace Scylla.Net
                                            bool dataRetrieved, int nbRetry)
         {
             if (nbRetry != 0)
+            {
                 return RetryDecision.Rethrow();
+            }
 
             return receivedResponses >= requiredResponses && !dataRetrieved
                        ? RetryDecision.Retry(cl)
@@ -84,7 +86,9 @@ namespace Scylla.Net
                                             int nbRetry)
         {
             if (nbRetry != 0)
+            {
                 return RetryDecision.Rethrow();
+            }
 
             // If the batch log write failed, retry the operation as this might just be we were unlucky at picking candidtes
             return writeType == "BATCH_LOG" ? RetryDecision.Retry(cl) : RetryDecision.Rethrow();

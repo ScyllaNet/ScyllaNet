@@ -71,11 +71,15 @@ namespace Scylla.Net.Mapping
             {
                 // Use string column names if configured
                 if (_partitionKeyColumns != null)
+                {
                     return _partitionKeyColumns;
+                }
 
                 // If no MemberInfos available either, just bail
-                if (_partitionKeyColumnMembers == null) 
+                if (_partitionKeyColumnMembers == null)
+                {
                     return null;
+                }
 
                 // Get the column names from the members
                 var columnNames = new string[_partitionKeyColumnMembers.Length];
@@ -115,8 +119,11 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Map<TPoco> TableName(string tableName)
         {
-            if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentNullException("tableName");
-            
+            if (string.IsNullOrWhiteSpace(tableName))
+            {
+                throw new ArgumentNullException("tableName");
+            }
+
             _tableName = tableName;
             return this;
         }
@@ -126,9 +133,21 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Map<TPoco> PartitionKey(params string[] columnNames)
         {
-            if (columnNames == null) throw new ArgumentNullException("columnNames");
-            if (columnNames.Length == 0) throw new ArgumentOutOfRangeException("columnNames", "Must specify at least one partition key column.");
-            if (_partitionKeyColumnMembers != null) throw new InvalidOperationException("Partition key columns were already specified.");
+            if (columnNames == null)
+            {
+                throw new ArgumentNullException("columnNames");
+            }
+
+            if (columnNames.Length == 0)
+            {
+                throw new ArgumentOutOfRangeException("columnNames", "Must specify at least one partition key column.");
+            }
+
+            if (_partitionKeyColumnMembers != null)
+            {
+                throw new InvalidOperationException("Partition key columns were already specified.");
+            }
+
             _partitionKeyColumns = columnNames;
             return this;
         }
@@ -138,9 +157,20 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Map<TPoco> PartitionKey(params Expression<Func<TPoco, object>>[] columns)
         {
-            if (columns == null) throw new ArgumentNullException("columns");
-            if (columns.Length == 0) throw new ArgumentOutOfRangeException("columns", "Must specify at least one partition key column.");
-            if (_partitionKeyColumns != null) throw new InvalidOperationException("Partition key column names were already specified, define multiple using invoking this method with multiple expressions.");
+            if (columns == null)
+            {
+                throw new ArgumentNullException("columns");
+            }
+
+            if (columns.Length == 0)
+            {
+                throw new ArgumentOutOfRangeException("columns", "Must specify at least one partition key column.");
+            }
+
+            if (_partitionKeyColumns != null)
+            {
+                throw new InvalidOperationException("Partition key column names were already specified, define multiple using invoking this method with multiple expressions.");
+            }
 
             // Validate we got property/field expressions
             var partitionKeyMemberInfo = new MemberInfo[columns.Length];
@@ -161,8 +191,16 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Map<TPoco> ClusteringKey(params string[] columnNames)
         {
-            if (columnNames == null) throw new ArgumentNullException("columnNames");
-            if (columnNames.Length == 0) return this;
+            if (columnNames == null)
+            {
+                throw new ArgumentNullException("columnNames");
+            }
+
+            if (columnNames.Length == 0)
+            {
+                return this;
+            }
+
             _clusteringKeyColumns.AddRange(columnNames.Select(name => Tuple.Create(name, SortOrder.Unspecified)));
             return this;
         }
@@ -172,8 +210,15 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Map<TPoco> ClusteringKey(params Tuple<string, SortOrder>[] columnNames)
         {
-            if (columnNames == null) throw new ArgumentNullException("columnNames");
-            if (columnNames.Length == 0) return this;
+            if (columnNames == null)
+            {
+                throw new ArgumentNullException("columnNames");
+            }
+
+            if (columnNames.Length == 0)
+            {
+                return this;
+            }
             //Allow multiple calls to clustering key
             _clusteringKeyColumns.AddRange(columnNames);
             return this;
@@ -186,7 +231,11 @@ namespace Scylla.Net.Mapping
         /// <param name="order">Clustering order</param>
         public Map<TPoco> ClusteringKey(Expression<Func<TPoco, object>> column, SortOrder order)
         {
-            if (column == null) throw new ArgumentNullException("column");
+            if (column == null)
+            {
+                throw new ArgumentNullException("column");
+            }
+
             var memberInfo = GetPropertyOrField(column);
             _clusteringKeyColumnMembers.Add(Tuple.Create(memberInfo, order));
             return this;
@@ -226,15 +275,22 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Map<TPoco> Column<TProp>(Expression<Func<TPoco, TProp>> column, Action<ColumnMap> columnConfig)
         {
-            if (column == null) throw new ArgumentNullException("column");
-            if (columnConfig == null) throw new ArgumentNullException("columnConfig");
+            if (column == null)
+            {
+                throw new ArgumentNullException("column");
+            }
 
-            MemberInfo memberInfo = GetPropertyOrField(column);
+            if (columnConfig == null)
+            {
+                throw new ArgumentNullException("columnConfig");
+            }
+
+            var memberInfo = GetPropertyOrField(column);
 
             // Create the ColumnMap for the member if we haven't already
-            if (_columnMaps.TryGetValue(memberInfo.Name, out ColumnMap columnMap) == false)
+            if (_columnMaps.TryGetValue(memberInfo.Name, out var columnMap) == false)
             {
-                Type memberInfoType = memberInfo as PropertyInfo != null
+                var memberInfoType = memberInfo as PropertyInfo != null
                                           ? ((PropertyInfo)memberInfo).PropertyType
                                           : ((FieldInfo)memberInfo).FieldType;
 
@@ -278,18 +334,18 @@ namespace Scylla.Net.Mapping
         IColumnDefinition ITypeDefinition.GetColumnDefinition(FieldInfo field)
         {
             // If a column map has been defined, return it, otherwise create an empty one
-            return _columnMaps.TryGetValue(field.Name, out ColumnMap columnMap) ? columnMap : new ColumnMap(field, field.FieldType, false);
+            return _columnMaps.TryGetValue(field.Name, out var columnMap) ? columnMap : new ColumnMap(field, field.FieldType, false);
         }
 
         IColumnDefinition ITypeDefinition.GetColumnDefinition(PropertyInfo property)
         {
             // If a column map has been defined, return it, otherwise create an empty one
-            return _columnMaps.TryGetValue(property.Name, out ColumnMap columnMap) ? columnMap : new ColumnMap(property, property.PropertyType, false);
+            return _columnMaps.TryGetValue(property.Name, out var columnMap) ? columnMap : new ColumnMap(property, property.PropertyType, false);
         }
 
         private string GetColumnName(MemberInfo memberInfo)
         {
-            if (_columnMaps.TryGetValue(memberInfo.Name, out ColumnMap columnMap))
+            if (_columnMaps.TryGetValue(memberInfo.Name, out var columnMap))
             {
                 return ((IColumnDefinition)columnMap).ColumnName ?? memberInfo.Name;
             }
@@ -303,15 +359,19 @@ namespace Scylla.Net.Mapping
         private MemberInfo GetPropertyOrField<TProp>(Expression<Func<TPoco, TProp>> expression)
         {
             // Take the body of the lambda expression
-            Expression body = expression.Body;
+            var body = expression.Body;
 
             // We'll get a Convert node for the Func<TPoco, object> where the actual property expression is the operand being converted to object
             if (body.NodeType == ExpressionType.Convert)
+            {
                 body = ((UnaryExpression) body).Operand;
+            }
 
             var memberExpression = body as MemberExpression;
             if (memberExpression == null || IsPropertyOrField(memberExpression.Member) == false)
+            {
                 throw new ArgumentOutOfRangeException("expression", string.Format("Expression {0} is not a property or field.", expression));
+            }
 
             if (memberExpression.Member.DeclaringType != _pocoType && _pocoType.GetTypeInfo().IsSubclassOf(memberExpression.Member.DeclaringType) == false)
             {

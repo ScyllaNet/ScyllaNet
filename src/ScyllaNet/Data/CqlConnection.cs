@@ -48,7 +48,9 @@ namespace Scylla.Net.Data
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
             if (_currentTransaction != null)
+            {
                 throw new InvalidOperationException();
+            }
 
             _currentTransaction = new CqlBatchTransaction(this);
             return _currentTransaction;
@@ -58,14 +60,19 @@ namespace Scylla.Net.Data
         public override void ChangeDatabase(string databaseName)
         {
             if (ManagedConnection != null)
+            {
                 ManagedConnection.ChangeKeyspace(databaseName);
+            }
         }
 
         /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             if (_connectionState == ConnectionState.Open)
+            {
                 Close();
+            }
+
             base.Dispose(disposing);
         }
 
@@ -99,7 +106,10 @@ namespace Scylla.Net.Data
         {
             var cmd = new CqlCommand() { CqlConnection = this };
             if (_currentTransaction != null)
+            {
                 _currentTransaction.Append(cmd);
+            }
+
             return cmd;
         }
 
@@ -151,7 +161,7 @@ namespace Scylla.Net.Data
         /// <returns></returns>
         protected virtual Cluster CreateCluster(ScyllaDbConnectionStringBuilder connectionStringBuilder)
         {
-            if (!_clusters.TryGetValue(_connectionStringBuilder.ClusterName, out Cluster cluster))
+            if (!_clusters.TryGetValue(_connectionStringBuilder.ClusterName, out var cluster))
             {
                 var builder = _connectionStringBuilder.MakeClusterBuilder();
                 OnBuildingCluster(builder);
@@ -212,7 +222,10 @@ namespace Scylla.Net.Data
         {
             var conn = new CqlConnection(_connectionStringBuilder.ConnectionString);
             if (State != ConnectionState.Closed && State != ConnectionState.Broken)
+            {
                 conn.Open();
+            }
+
             return conn;
         }
     }

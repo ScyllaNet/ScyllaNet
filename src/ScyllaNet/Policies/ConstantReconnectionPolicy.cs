@@ -29,9 +29,13 @@ namespace Scylla.Net
         public ConstantReconnectionPolicy(long constantDelayMs)
         {
             if (constantDelayMs > 0)
+            {
                 _delayMs = constantDelayMs;
+            }
             else
+            {
                 throw new ArgumentException("Constant delay time for reconnection policy have to be bigger than 0.");
+            }
         }
 
         /// <summary>

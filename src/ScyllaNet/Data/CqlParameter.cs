@@ -73,7 +73,9 @@ namespace Scylla.Net.Data
             set
             {
                 if (value != ParameterDirection.Input)
+                {
                     throw new NotSupportedException("Cql only supports input parameters");
+                }
             }
         }
 

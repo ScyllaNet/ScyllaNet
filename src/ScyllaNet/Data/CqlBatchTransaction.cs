@@ -32,15 +32,20 @@ namespace Scylla.Net.Data
         public void Append(CqlCommand cmd)
         {
             if (!ReferenceEquals(CqlConnection, cmd.Connection))
+            {
                 throw new InvalidOperationException();
+            }
 
             commands.Add(cmd);
         }
 
         public override void Commit()
         {
-            foreach (CqlCommand cmd in commands)
+            foreach (var cmd in commands)
+            {
                 cmd.ExecuteNonQuery();
+            }
+
             commands.Clear();
             CqlConnection.ClearDbTransaction();
         }

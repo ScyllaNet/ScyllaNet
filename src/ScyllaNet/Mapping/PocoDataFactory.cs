@@ -54,7 +54,7 @@ namespace Scylla.Net.Mapping
         private PocoData CreatePocoData(Type pocoType)
         {
             // Try to get mapping from predefined collection, otherwise fallback to using attributes
-            if (!_predefinedTypeDefinitions.TryGetItem(pocoType, out ITypeDefinition typeDefinition))
+            if (!_predefinedTypeDefinitions.TryGetItem(pocoType, out var typeDefinition))
             {
                 typeDefinition = new AttributeBasedTypeDefinition(pocoType);
             }
@@ -64,7 +64,7 @@ namespace Scylla.Net.Mapping
         private PocoData CreatePocoData(Type pocoType, ITypeDefinition typeDefinition)
         {
             // Figure out the table name (if not specified, use the POCO class' name)
-            string tableName = typeDefinition.TableName ?? pocoType.Name;
+            var tableName = typeDefinition.TableName ?? pocoType.Name;
 
             // Figure out the primary key columns (if not specified, assume a column called "id" is used)
             var pkColumnNames = typeDefinition.PartitionKeys ?? new[] { "id" };
@@ -76,12 +76,12 @@ namespace Scylla.Net.Mapping
                 .OrderBy(col => col?.ColumnName ?? col?.MemberInfo.Name ?? string.Empty, StringComparer.OrdinalIgnoreCase);
 
             // If explicit columns, only get column definitions that are explicitly defined, otherwise get all columns that aren't marked as Ignored
-            IEnumerable<IColumnDefinition> columnDefinitions = typeDefinition.ExplicitColumns
+            var columnDefinitions = typeDefinition.ExplicitColumns
                                                                    ? fieldsAndProperties.Where(c => c.IsExplicitlyDefined)
                                                                    : fieldsAndProperties.Where(c => c.Ignore == false);
 
             // Create PocoColumn collection (where ordering is guaranteed to be consistent)
-            LookupKeyedCollection<string, PocoColumn> columns = columnDefinitions
+            var columns = columnDefinitions
                 .Select(PocoColumn.FromColumnDefinition)
                 .ToLookupKeyedCollection(pc => pc.ColumnName, StringComparer.OrdinalIgnoreCase);
 

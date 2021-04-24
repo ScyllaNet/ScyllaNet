@@ -44,7 +44,9 @@ namespace Scylla.Net.Mapping.Statements
         {
             // If it's already got a SELECT clause, just bail
             if (CqlGenerator.SelectRegex.IsMatch(cql.Statement))
+            {
                 return;
+            }
 
             // Get the PocoData so we can generate a list of columns
             var pocoData = _pocoDataFactory.GetPocoData<T>();
@@ -180,7 +182,9 @@ namespace Scylla.Net.Mapping.Statements
             var pocoData = _pocoDataFactory.GetPocoData<T>();
 
             if (pocoData.Columns.Count == 0)
+            {
                 throw new InvalidOperationException(string.Format(CqlGenerator.NoColumns, "UPDATE", typeof(T).Name));
+            }
 
             if (pocoData.MissingPrimaryKeyColumns.Count > 0)
             {

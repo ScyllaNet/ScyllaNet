@@ -872,7 +872,7 @@ namespace Scylla.Net.Connections
                     break;
                 }
 
-                if (!_freeOperations.TryPop(out short streamId))
+                if (!_freeOperations.TryPop(out var streamId))
                 {
                     //Queue it up for later.
                     _writeQueue.Enqueue(state);

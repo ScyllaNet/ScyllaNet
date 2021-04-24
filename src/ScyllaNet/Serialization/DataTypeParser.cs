@@ -132,7 +132,7 @@ namespace Scylla.Net.Serialization
                 {
                     typeName = typeName.Substring(startIndex, length);
                 }
-                if (SingleFqTypeNames.TryGetValue(typeName, out ColumnTypeCode typeCode))
+                if (SingleFqTypeNames.TryGetValue(typeName, out var typeCode))
                 {
                     dataType.TypeCode = typeCode;
                     return dataType;
@@ -383,7 +383,7 @@ namespace Scylla.Net.Serialization
             {
                 typeName = typeName.Substring(startIndex, length);
             }
-            if (SingleCqlNames.TryGetValue(typeName, out ColumnTypeCode typeCode))
+            if (SingleCqlNames.TryGetValue(typeName, out var typeCode))
             {
                 dataType.TypeCode = typeCode;
                 return TaskHelper.ToTask(dataType);

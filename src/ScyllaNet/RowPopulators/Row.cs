@@ -349,7 +349,7 @@ namespace Scylla.Net
                 return value;
             }
             var mapColumnInfo = (MapColumnInfo)column.TypeInfo;
-            if (!Utils.IsIDictionary(targetType, out Type childTargetKeyType, out Type childTargetValueType))
+            if (!Utils.IsIDictionary(targetType, out var childTargetKeyType, out var childTargetValueType))
             {
                 throw new InvalidCastException(string.Format("Unable to cast object of type '{0}' to type '{1}'",
                     value.GetType(), targetType));

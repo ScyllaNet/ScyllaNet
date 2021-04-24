@@ -16,8 +16,10 @@ namespace Scylla.Net.Mapping.Utils
                                                                                         Func<TValue, TKey> keySelector)
         {
             var keyedCollection = new LookupKeyedCollection<TKey, TValue>(keySelector);
-            foreach(TValue value in values)
+            foreach(var value in values)
+            {
                 keyedCollection.Add(value);
+            }
 
             return keyedCollection;
         }
@@ -27,8 +29,10 @@ namespace Scylla.Net.Mapping.Utils
                                                                                         IEqualityComparer<TKey> keyComparer)
         {
             var keyedCollection = new LookupKeyedCollection<TKey, TValue>(keySelector, keyComparer);
-            foreach (TValue value in values)
+            foreach (var value in values)
+            {
                 keyedCollection.Add(value);
+            }
 
             return keyedCollection;
         }

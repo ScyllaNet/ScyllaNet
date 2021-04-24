@@ -93,7 +93,7 @@ namespace Scylla.Net
 
         public void RemoveIfExists(IPEndPoint ep)
         {
-            if (!_hosts.TryRemove(ep, out Host host))
+            if (!_hosts.TryRemove(ep, out var host))
             {
                 //The host does not exists
                 return;

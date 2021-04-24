@@ -180,13 +180,18 @@ namespace Scylla.Net
                 };
 
             var sb = new StringBuilder();
-            bool first = true;
-            foreach (KeyValuePair<string, string> ent in opt)
+            var first = true;
+            foreach (var ent in opt)
             {
                 if (ent.Value.Contains("{"))
+                {
                     sb.Append((first ? "" : " AND ") + ent.Key + " = " + ent.Value);
+                }
                 else
+                {
                     sb.Append((first ? "" : " AND ") + ent.Key + " = '" + ent.Value + "'");
+                }
+
                 first = false;
             }
             return sb.ToString();
@@ -196,7 +201,9 @@ namespace Scylla.Net
         {
             var tabOpt = obj as TableOptions;
             if (tabOpt == null)
+            {
                 return false;
+            }
 
             return
                 bfFpChance == tabOpt.bfFpChance &&

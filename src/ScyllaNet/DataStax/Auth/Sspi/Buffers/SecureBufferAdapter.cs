@@ -121,7 +121,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Buffers
             this.bufferHandles = new GCHandle[this.buffers.Count];
             this.bufferCarrier = new SecureBufferInternal[this.buffers.Count];
 
-            for ( int i = 0; i < this.buffers.Count; i++ )
+            for ( var i = 0; i < this.buffers.Count; i++ )
             {
                 this.bufferHandles[i] = GCHandle.Alloc( this.buffers[i].Buffer, GCHandleType.Pinned );
 
@@ -192,13 +192,13 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Buffers
                 // When this class is actually being used for its original purpose - to convey buffers 
                 // back and forth to SSPI calls - we need to copy the potentially modified structure members
                 // back to our caller's buffer.
-                for( int i = 0; i < this.buffers.Count; i++ )
+                for( var i = 0; i < this.buffers.Count; i++ )
                 {
                     this.buffers[i].Length = this.bufferCarrier[i].Count;
                 }
             }
 
-            for( int i = 0; i < this.bufferHandles.Length; i++ )
+            for( var i = 0; i < this.bufferHandles.Length; i++ )
             {
                 if( this.bufferHandles[i].IsAllocated )
                 {

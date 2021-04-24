@@ -187,10 +187,13 @@ namespace Scylla.Net.Serialization.Graph.GraphSON2
                 return serializers[type];
             }
             foreach (var supportedType in serializers.Keys)
+            {
                 if (supportedType.IsAssignableFrom(type))
                 {
                     return serializers[supportedType];
                 }
+            }
+
             return null;
         }
 

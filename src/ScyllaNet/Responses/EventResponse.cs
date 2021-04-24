@@ -17,7 +17,7 @@ namespace Scylla.Net.Responses
         internal EventResponse(Frame frame)
             : base(frame)
         {
-            string eventTypeString = Reader.ReadString();
+            var eventTypeString = Reader.ReadString();
             if (eventTypeString == "TOPOLOGY_CHANGE")
             {
                 var ce = new TopologyChangeEventArgs();

@@ -98,7 +98,7 @@ namespace Scylla.Net
 
         internal UdtMap GetUdtMap(string keyspace, Type netType)
         {
-            return _udtByNetType.TryGetValue(netType, out UdtMap map) ? map : null;
+            return _udtByNetType.TryGetValue(netType, out var map) ? map : null;
         }
     }
 }

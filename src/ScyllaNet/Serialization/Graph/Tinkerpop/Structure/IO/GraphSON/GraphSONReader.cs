@@ -63,7 +63,9 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
         protected GraphSONReader(IReadOnlyDictionary<string, IGraphSONDeserializer> deserializerByGraphSONType)
         {
             foreach (var deserializerAndGraphSONType in deserializerByGraphSONType)
+            {
                 Deserializers[deserializerAndGraphSONType.Key] = deserializerAndGraphSONType.Value;
+            }
         }
 
         /// <summary>
@@ -121,7 +123,10 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
             {
                 var property = e as JProperty;
                 if (property == null)
+                {
                     throw new InvalidOperationException($"Cannot read graphson: {jtokenDict}");
+                }
+
                 dict.Add(property.Name, ToObject(property.Value));
             }
             return dict;

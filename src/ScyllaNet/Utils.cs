@@ -21,27 +21,34 @@ namespace Scylla.Net
             var sb = new StringBuilder("{");
             if (source.Count > 0)
             {
-                int counter = 0;
-                foreach (KeyValuePair<string, string> elem in source)
+                var counter = 0;
+                foreach (var elem in source)
                 {
                     counter++;
                     sb.Append("'" + elem.Key + "'" + " : " + "'" + elem.Value + "'" + ((source.Count != counter) ? ", " : "}"));
                     //sb.Append("'" + elem.Key + "'" + " : " + (elem.Key == "class" ? "'" + elem.Value + "'" : elem.Value) + ((source.Count != counter) ? ", " : "}"));
                 }
             }
-            else sb.Append("}");
+            else
+            {
+                sb.Append("}");
+            }
 
             return sb.ToString();
         }
 
         public static IDictionary<string, string> ConvertStringToMap(string source)
         {
-            string[] elements = source.Replace("{\"", "").Replace("\"}", "").Replace("\"\"", "\"").Replace("\":", ":").Split(',');
+            var elements = source.Replace("{\"", "").Replace("\"}", "").Replace("\"\"", "\"").Replace("\":", ":").Split(',');
             var map = new SortedDictionary<string, string>();
 
             if (source != "{}")
-                foreach (string elem in elements)
+            {
+                foreach (var elem in elements)
+                {
                     map.Add(elem.Split(':')[0].Replace("\"", ""), elem.Split(':')[1].Replace("\"", ""));
+                }
+            }
 
             return map;
         }
@@ -53,12 +60,16 @@ namespace Scylla.Net
 
             if (source != "{}")
             { 
-                foreach (string elem in elements)
+                foreach (var elem in elements)
                 {
-                    if (int.TryParse(elem.Split(':')[1].Replace("\"", ""), out int value))
+                    if (int.TryParse(elem.Split(':')[1].Replace("\"", ""), out var value))
+                    {
                         map.Add(elem.Split(':')[0].Replace("\"", ""), value);
+                    }
                     else
+                    {
                         throw new FormatException("Value of keyspace strategy option is in invalid format!");
+                    }
                 }
             }
             return map;
@@ -75,18 +86,34 @@ namespace Scylla.Net
 
         public static bool CompareIDictionary<TKey, TValue>(IDictionary<TKey, TValue> dict1, IDictionary<TKey, TValue> dict2)
         {
-            if (dict1 == dict2) return true;
-            if ((dict1 == null) || (dict2 == null)) return false;
-            if (dict1.Count != dict2.Count) return false;
-
-            EqualityComparer<TValue> comp = EqualityComparer<TValue>.Default;
-
-            foreach (KeyValuePair<TKey, TValue> kvp in dict1)
+            if (dict1 == dict2)
             {
-                if (!dict2.TryGetValue(kvp.Key, out TValue value2))
+                return true;
+            }
+
+            if ((dict1 == null) || (dict2 == null))
+            {
+                return false;
+            }
+
+            if (dict1.Count != dict2.Count)
+            {
+                return false;
+            }
+
+            var comp = EqualityComparer<TValue>.Default;
+
+            foreach (var kvp in dict1)
+            {
+                if (!dict2.TryGetValue(kvp.Key, out var value2))
+                {
                     return false;
+                }
+
                 if (!comp.Equals(kvp.Value, value2))
+                {
                     return false;
+                }
             }
             return true;
         }
@@ -117,7 +144,7 @@ namespace Scylla.Net
         {
             var result = new byte[totalLength];
             var offset = 0;
-            foreach (byte[] data in buffers)
+            foreach (var data in buffers)
             {
                 Buffer.BlockCopy(data, 0, result, offset, data.Length);
                 offset += data.Length;

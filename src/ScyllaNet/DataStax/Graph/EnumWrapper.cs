@@ -35,17 +35,37 @@ namespace Scylla.Net.DataStax.Graph
         /// <inheritdoc />
         public bool Equals(EnumWrapper other)
         {
-            if (object.ReferenceEquals(null, other)) return false;
-            if (object.ReferenceEquals(this, other)) return true;
+            if (object.ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             return string.Equals(EnumName, other.EnumName) && string.Equals(EnumValue, other.EnumValue);
         }
 
         /// <inheritdoc />
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(null, obj)) return false;
-            if (object.ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (object.ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (object.ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+
             return Equals((EnumWrapper) obj);
         }
 

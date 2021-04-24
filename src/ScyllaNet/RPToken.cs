@@ -28,9 +28,14 @@ namespace Scylla.Net
         public override bool Equals(object obj)
         {
             if (this == obj)
+            {
                 return true;
+            }
+
             if (obj == null || GetType() != obj.GetType())
+            {
                 return false;
+            }
 
             return _value == ((RPToken) obj)._value;
         }
@@ -60,9 +65,11 @@ namespace Scylla.Net
                 Justification = "Support for Cassandra's RandomPartitioner")]
             public override IToken Hash(byte[] partitionKey)
             {
-                if (_md5 == null) 
+                if (_md5 == null)
+                {
                     _md5 = MD5.Create();
-                
+                }
+
                 var hash = _md5.ComputeHash(partitionKey);
                 
                 var reversedHash = new byte[hash.Length];

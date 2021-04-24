@@ -19,9 +19,21 @@ namespace Scylla.Net.DataStax.Graph
 
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(null, obj)) return false;
-            if (object.ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
+            if (object.ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (object.ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+
             return Equals((IElement) obj);
         }
 

@@ -60,8 +60,11 @@ namespace Scylla.Net.Data
         internal CqlReader(RowSet rows)
         {
             popul = rows;
-            for (int idx = 0; idx < popul.Columns.Length; idx++)
+            for (var idx = 0; idx < popul.Columns.Length; idx++)
+            {
                 colidx.Add(popul.Columns[idx].Name, idx);
+            }
+
             enumRows = popul.GetRows();
             enumerRows = enumRows.GetEnumerator();
         }
@@ -197,8 +200,11 @@ namespace Scylla.Net.Data
         /// <inheritdoc />
         public override int GetValues(object[] values)
         {
-            for (int i = 0; i < enumerRows.Current.Length; i++)
+            for (var i = 0; i < enumerRows.Current.Length; i++)
+            {
                 values[i] = enumerRows.Current[i];
+            }
+
             return enumerRows.Current.Length;
         }
 

@@ -28,7 +28,7 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Map<TPoco> For<TPoco>()
         {
-            if (Definitions.TryGetItem(typeof(TPoco), out ITypeDefinition map) == false)
+            if (Definitions.TryGetItem(typeof(TPoco), out var map) == false)
             {
                 map = new Map<TPoco>();
                 Definitions.Add(map);

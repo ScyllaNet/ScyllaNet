@@ -37,7 +37,7 @@ namespace Scylla.Net
         public RetryDecision OnReadTimeout(IStatement query, ConsistencyLevel cl, int requiredResponses, int receivedResponses, bool dataRetrieved,
                                            int nbRetry)
         {
-            RetryDecision decision = ChildPolicy.OnReadTimeout(query, cl, requiredResponses, receivedResponses, dataRetrieved, nbRetry);
+            var decision = ChildPolicy.OnReadTimeout(query, cl, requiredResponses, receivedResponses, dataRetrieved, nbRetry);
             switch (decision.DecisionType)
             {
                 case RetryDecision.RetryDecisionType.Ignore:
@@ -58,7 +58,7 @@ namespace Scylla.Net
 
         public RetryDecision OnWriteTimeout(IStatement query, ConsistencyLevel cl, string writeType, int requiredAcks, int receivedAcks, int nbRetry)
         {
-            RetryDecision decision = ChildPolicy.OnWriteTimeout(query, cl, writeType, requiredAcks, receivedAcks, nbRetry);
+            var decision = ChildPolicy.OnWriteTimeout(query, cl, writeType, requiredAcks, receivedAcks, nbRetry);
             switch (decision.DecisionType)
             {
                 case RetryDecision.RetryDecisionType.Ignore:
@@ -79,7 +79,7 @@ namespace Scylla.Net
 
         public RetryDecision OnUnavailable(IStatement query, ConsistencyLevel cl, int requiredReplica, int aliveReplica, int nbRetry)
         {
-            RetryDecision decision = ChildPolicy.OnUnavailable(query, cl, requiredReplica, aliveReplica, nbRetry);
+            var decision = ChildPolicy.OnUnavailable(query, cl, requiredReplica, aliveReplica, nbRetry);
             switch (decision.DecisionType)
             {
                 case RetryDecision.RetryDecisionType.Ignore:

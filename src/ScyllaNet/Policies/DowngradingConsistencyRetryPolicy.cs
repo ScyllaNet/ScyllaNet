@@ -93,7 +93,9 @@ namespace Scylla.Net
                                            int nbRetry)
         {
             if (nbRetry != 0)
+            {
                 return RetryDecision.Rethrow();
+            }
 
             if (receivedResponses < requiredResponses)
             {
@@ -131,7 +133,9 @@ namespace Scylla.Net
         public RetryDecision OnWriteTimeout(IStatement query, ConsistencyLevel cl, string writeType, int requiredAcks, int receivedAcks, int nbRetry)
         {
             if (nbRetry != 0)
+            {
                 return RetryDecision.Rethrow();
+            }
 
             switch (writeType)
             {
@@ -179,11 +183,20 @@ namespace Scylla.Net
         private static RetryDecision MaxLikelyToWorkCl(int knownOk)
         {
             if (knownOk >= 3)
+            {
                 return RetryDecision.Retry(ConsistencyLevel.Three);
+            }
+
             if (knownOk >= 2)
+            {
                 return RetryDecision.Retry(ConsistencyLevel.Two);
+            }
+
             if (knownOk >= 1)
+            {
                 return RetryDecision.Retry(ConsistencyLevel.One);
+            }
+
             return RetryDecision.Rethrow();
         }
     }

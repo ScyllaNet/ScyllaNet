@@ -64,7 +64,7 @@ namespace Scylla.Net.Data.Linq
                 throw new ArgumentNullException(nameof(executionProfile));
             }
 
-            string cql = GetCql(out object[] values);
+            var cql = GetCql(out var values);
             var rs = await InternalExecuteWithProfileAsync(executionProfile, cql, values).ConfigureAwait(false);
             var result = default(TEntity);
             var row = rs.FirstOrDefault();

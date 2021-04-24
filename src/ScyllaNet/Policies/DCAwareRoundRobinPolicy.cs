@@ -215,7 +215,7 @@ namespace Scylla.Net
             foreach (var h in remoteHosts)
             {
                 var dc = GetDatacenter(h);
-                dcHosts.TryGetValue(dc, out int hostYieldedByDc);
+                dcHosts.TryGetValue(dc, out var hostYieldedByDc);
                 if (hostYieldedByDc >= _usedHostsPerRemoteDc)
                 {
                     //We already returned the amount of remotes nodes required

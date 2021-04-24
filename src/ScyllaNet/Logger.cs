@@ -134,7 +134,7 @@ namespace Scylla.Net
             {
                 var sb = new StringBuilder();
                 // ReSharper disable once AssignNullToNotNullAttribute
-                foreach (StackFrame frame in new StackTrace(ex, true).GetFrames().Skip(3))
+                foreach (var frame in new StackTrace(ex, true).GetFrames().Skip(3))
                 {
                     sb.Append(frame);
                 }

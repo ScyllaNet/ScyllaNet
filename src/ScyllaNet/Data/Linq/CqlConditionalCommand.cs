@@ -57,7 +57,7 @@ namespace Scylla.Net.Data.Linq
                 throw new ArgumentNullException(nameof(executionProfile));
             }
 
-            var cql = GetCql(out object[] values);
+            var cql = GetCql(out var values);
             var session = GetTable().GetSession();
             var stmt = await InternalRef.StatementFactory.GetStatementAsync(
                 session, 

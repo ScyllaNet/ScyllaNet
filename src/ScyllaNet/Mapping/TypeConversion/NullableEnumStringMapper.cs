@@ -27,7 +27,9 @@ namespace Scylla.Net.Mapping.TypeConversion
         {
             // Account for null strings
             if (value == null)
+            {
                 return default(T);      // Will return null
+            }
 
             return StringToEnumCache[value];
         }

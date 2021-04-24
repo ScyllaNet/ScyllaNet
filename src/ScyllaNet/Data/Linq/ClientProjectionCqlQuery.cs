@@ -46,7 +46,7 @@ namespace Scylla.Net.Data.Linq
             }
             else
             {
-                IEnumerable<TSource> sourceData = _source.AdaptResult(cql, rs);
+                var sourceData = _source.AdaptResult(cql, rs);
                 var func = _projectionExpression.Compile();
                 result = sourceData.Select(func);
             }

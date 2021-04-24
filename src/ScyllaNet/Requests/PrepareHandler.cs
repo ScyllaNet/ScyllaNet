@@ -83,7 +83,7 @@ namespace Scylla.Net.Requests
             IInternalSession session, IEnumerator<Host> queryPlan, Dictionary<IPEndPoint, Exception> triedHosts)
         {
             Host host;
-            while ((host = GetNextHost(queryPlan, out HostDistance distance)) != null)
+            while ((host = GetNextHost(queryPlan, out var distance)) != null)
             {
                 var connection = await RequestHandler.GetConnectionFromHostAsync(host, distance, session, triedHosts).ConfigureAwait(false);
                 if (connection != null)

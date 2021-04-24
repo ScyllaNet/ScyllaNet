@@ -10,7 +10,7 @@ namespace Scylla.Net
 
         protected override void Load(FrameReader cb)
         {
-            short len = cb.ReadInt16();
+            var len = cb.ReadInt16();
             _info.UnknownId = new byte[len];
             cb.Read(_info.UnknownId, 0, len);
         }

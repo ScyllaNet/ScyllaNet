@@ -35,7 +35,7 @@ namespace Scylla.Net
         /// </summary>
         public static Response Parse(Frame frame)
         {
-            byte opcode = frame.Header.Opcode;
+            var opcode = frame.Header.Opcode;
             if (!_responseHandlerFactory.ContainsKey(opcode))
             {
                 throw new DriverInternalError("Unknown Response Frame type " + opcode);

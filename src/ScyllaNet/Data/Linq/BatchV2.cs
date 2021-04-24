@@ -50,8 +50,11 @@ namespace Scylla.Net.Data.Linq
         {
             var sb = new StringBuilder();
             sb.AppendLine("BEGIN " + BatchTypeString() + "BATCH");
-            foreach (Statement q in _batchScript.Queries)
+            foreach (var q in _batchScript.Queries)
+            {
                 sb.AppendLine(q + ";");
+            }
+
             sb.Append("APPLY BATCH");
             return sb.ToString();
         }

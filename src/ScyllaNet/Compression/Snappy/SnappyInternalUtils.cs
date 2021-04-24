@@ -19,7 +19,7 @@ namespace Snappy
             CheckPositionIndexes(leftIndex, leftIndex + length, left.Length);
             CheckPositionIndexes(rightIndex, rightIndex + length, right.Length);
 
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 if (left[leftIndex + i] != right[rightIndex + i])
                 {

@@ -63,7 +63,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
         /// a response should be anticipated.</returns>
         public SecurityStatus Init( byte[] serverToken, out byte[] outToken )
         {
-            TimeStamp rawExpiry = new TimeStamp();
+            var rawExpiry = new TimeStamp();
 
             SecurityStatus status;
 

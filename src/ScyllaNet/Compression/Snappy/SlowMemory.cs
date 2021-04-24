@@ -34,7 +34,7 @@ namespace Snappy
 
         public void CopyLong(byte[] src, int srcIndex, byte[] dest, int destIndex)
         {
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
             {
                 dest[destIndex + i] = src[srcIndex + i];
             }

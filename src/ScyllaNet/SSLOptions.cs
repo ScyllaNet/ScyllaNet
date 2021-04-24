@@ -129,7 +129,9 @@ namespace Scylla.Net
             SslPolicyErrors sslPolicyErrors)
         {
             if (sslPolicyErrors == SslPolicyErrors.None)
+            {
                 return true;
+            }
 
             _logger.Error(string.Format("Cassandra node SSL certificate validation error(s): {0}", sslPolicyErrors));
 

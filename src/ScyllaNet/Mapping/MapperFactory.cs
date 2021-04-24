@@ -27,13 +27,17 @@ namespace Scylla.Net.Mapping
         private static readonly MethodInfo GetValueOfTMethod = CassandraRowType.GetTypeInfo().GetMethods(PublicInstance).Single(mi =>
         {
             if (mi.Name != "GetValue" || mi.IsGenericMethodDefinition == false)
+            {
                 return false;
+            }
 
-            Type[] genericArgs = mi.GetGenericArguments();
+            var genericArgs = mi.GetGenericArguments();
             if (genericArgs.Length != 1)
+            {
                 return false;
+            }
 
-            ParameterInfo[] parameters = mi.GetParameters();
+            var parameters = mi.GetParameters();
             return parameters.Length == 1 && parameters[0].ParameterType == IntType;
         });
 
@@ -41,9 +45,11 @@ namespace Scylla.Net.Mapping
         private static readonly MethodInfo IsNullMethod = CassandraRowType.GetTypeInfo().GetMethods(PublicInstance).Single(mi =>
         {
             if (mi.Name != "IsNull")
+            {
                 return false;
+            }
 
-            ParameterInfo[] parameters = mi.GetParameters();
+            var parameters = mi.GetParameters();
             return parameters.Length == 1 && parameters[0].ParameterType == IntType;
         });
 
@@ -102,8 +108,8 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public Func<T, object[]> GetValueCollector<T>(string cql, bool primaryKeyValuesOnly = false, bool primaryKeyValuesLast = false)
         {
-            Tuple<Type, string> key = Tuple.Create(typeof (T), cql);
-            Delegate valueCollectorFunc = _valueCollectorFuncCache.GetOrAdd(key, _ => CreateValueCollector<T>(primaryKeyValuesOnly, primaryKeyValuesLast));
+            var key = Tuple.Create(typeof (T), cql);
+            var valueCollectorFunc = _valueCollectorFuncCache.GetOrAdd(key, _ => CreateValueCollector<T>(primaryKeyValuesOnly, primaryKeyValuesLast));
             return (Func<T, object[]>) valueCollectorFunc;
         }
         
@@ -162,11 +168,11 @@ namespace Scylla.Net.Mapping
         /// <param name="primaryKeyValuesLast">Determines if only the values should contain first the non primary keys and then the primary keys</param>
         private Func<T, object[]> CreateValueCollector<T>(bool primaryKeyValuesOnly, bool primaryKeyValuesLast)
         {
-            PocoData pocoData = _pocoDataFactory.GetPocoData<T>();
+            var pocoData = _pocoDataFactory.GetPocoData<T>();
 
             // Create list to hold the method body and our input parameter, the POCO of type T
             var methodBodyExpressions = new List<Expression>();
-            ParameterExpression poco = Expression.Parameter(pocoData.PocoType, "poco");
+            var poco = Expression.Parameter(pocoData.PocoType, "poco");
 
             // Figure out which collection of columns to use
             IList<PocoColumn> columns = pocoData.Columns;
@@ -193,9 +199,9 @@ namespace Scylla.Net.Mapping
             
             for (var idx = 0; idx < columns.Count; idx++)
             {
-                PocoColumn column = columns[idx];
+                var column = columns[idx];
 
-                Expression getValueFromPoco = GetExpressionToGetValueFromPoco(poco, column);
+                var getValueFromPoco = GetExpressionToGetValueFromPoco(poco, column);
                 
                 // values[columnIndex] = (object) ... getValueFromPoco ...
                 methodBodyExpressions.Add(
@@ -217,12 +223,12 @@ namespace Scylla.Net.Mapping
         /// </summary>
         private Func<Row, T> CreateMapperForSingleColumnToPoco<T>(RowSet rows, PocoData pocoData)
         {
-            ParameterExpression row = Expression.Parameter(CassandraRowType, "row");
+            var row = Expression.Parameter(CassandraRowType, "row");
 
-            CqlColumn dbColumn = rows.Columns[0];
+            var dbColumn = rows.Columns[0];
 
             // Get an expression for getting the value of the single column as TPoco (and returning it)
-            Expression getColumnOrDefault = GetExpressionToGetColumnValueFromRow(row, dbColumn, pocoData.PocoType);
+            var getColumnOrDefault = GetExpressionToGetColumnValueFromRow(row, dbColumn, pocoData.PocoType);
 
             return Expression.Lambda<Func<Row, T>>(getColumnOrDefault, row).Compile();
         }
@@ -236,7 +242,7 @@ namespace Scylla.Net.Mapping
             ICollection<Expression> methodBodyExpressions = new LinkedList<Expression>();
 
             // The input parameter for our Func<Row, T>, a C* Row
-            ParameterExpression row = Expression.Parameter(CassandraRowType, "row");
+            var row = Expression.Parameter(CassandraRowType, "row");
 
             // T poco = new T();
             var poco = Expression.Variable(pocoData.PocoType, "poco");
@@ -273,21 +279,23 @@ namespace Scylla.Net.Mapping
             foreach (var dbColumn in rows.Columns)
             {
                 // Try to find a corresponding column on the POCO and if not found, don't map that column from the RowSet
-                if (pocoData.Columns.TryGetItem(dbColumn.Name, out PocoColumn pocoColumn) == false)
+                if (pocoData.Columns.TryGetItem(dbColumn.Name, out var pocoColumn) == false)
+                {
                     continue;
+                }
 
                 // Figure out if we're going to need to do any casting/conversion when we call Row.GetValue<T>(columnIndex)
-                Expression getColumnValue = GetExpressionToGetColumnValueFromRow(row, dbColumn, pocoColumn.MemberInfoType);
+                var getColumnValue = GetExpressionToGetColumnValueFromRow(row, dbColumn, pocoColumn.MemberInfoType);
 
                 // poco.SomeFieldOrProp = ... getColumnValue call ...
-                BinaryExpression getValueAndAssign = Expression.Assign(Expression.MakeMemberAccess(poco, pocoColumn.MemberInfo), getColumnValue);
+                var getValueAndAssign = Expression.Assign(Expression.MakeMemberAccess(poco, pocoColumn.MemberInfo), getColumnValue);
 
                 // Start with an expression that does nothing if the row is null
                 Expression ifRowValueIsNull = Expression.Empty();
 
                 // Cassandra will return null for empty collections, so make an effort to populate collection properties on the POCO with
                 // empty collections instead of null in those cases
-                if (TryGetCreateEmptyCollectionExpression(dbColumn, pocoColumn.MemberInfoType, out Expression createEmptyCollection))
+                if (TryGetCreateEmptyCollectionExpression(dbColumn, pocoColumn.MemberInfoType, out var createEmptyCollection))
                 {
                     // poco.SomeFieldOrProp = ... createEmptyCollection ...
                     ifRowValueIsNull = Expression.Assign(Expression.MakeMemberAccess(poco, pocoColumn.MemberInfo), createEmptyCollection);
@@ -306,7 +314,7 @@ namespace Scylla.Net.Mapping
             methodBodyExpressions.Add(poco);
 
             // Create a block expression for the method body expressions
-            BlockExpression methodBody = Expression.Block(methodBodyVariables, methodBodyExpressions);
+            var methodBody = Expression.Block(methodBodyVariables, methodBodyExpressions);
 
             // Return compiled expression
             return Expression.Lambda<Func<Row, T>>(methodBody, row).Compile();
@@ -319,9 +327,9 @@ namespace Scylla.Net.Mapping
         {
             ICollection<Expression> methodBodyExpressions = new LinkedList<Expression>();
             // The input parameter for our Func<Row, T>, a C* Row
-            ParameterExpression row = Expression.Parameter(CassandraRowType, "row");
+            var row = Expression.Parameter(CassandraRowType, "row");
             // poco variable
-            ParameterExpression poco = Expression.Variable(typeof(T), "poco");
+            var poco = Expression.Variable(typeof(T), "poco");
             var constructorParameters = projection.ConstructorInfo.GetParameters();
             var columnIndex = 0;
             if (constructorParameters.Length == 0)
@@ -364,7 +372,7 @@ namespace Scylla.Net.Mapping
                 // Start with an expression that does nothing if the row is null
                 Expression ifRowValueIsNull = Expression.Empty();
                 // For collections, make an effort to return an empty collection instead of null
-                if (TryGetCreateEmptyCollectionExpression(c, memberType, out Expression createEmptyCollection))
+                if (TryGetCreateEmptyCollectionExpression(c, memberType, out var createEmptyCollection))
                 {
                     // poco.SomeFieldOrProp = ... createEmptyCollection ...
                     ifRowValueIsNull = Expression.Assign(Expression.MakeMemberAccess(poco, member), createEmptyCollection);
@@ -409,11 +417,13 @@ namespace Scylla.Net.Mapping
             // Start by assuming the database wants the same type that the property is and that we'll just be getting the value from the property:
             // poco.SomeFieldOrProp
             Expression getValueFromPoco = Expression.MakeMemberAccess(poco, column.MemberInfo);
-            if (column.MemberInfoType == column.ColumnType) 
+            if (column.MemberInfoType == column.ColumnType)
+            {
                 return getValueFromPoco;
+            }
 
             // See if there is a converter available for between the two types
-            Delegate converter = _typeConverter.GetToDbConverter(column.MemberInfoType, column.ColumnType);
+            var converter = _typeConverter.GetToDbConverter(column.MemberInfoType, column.ColumnType);
             if (converter == null)
             {
                 // No converter available, at least try a cast:
@@ -450,8 +460,8 @@ namespace Scylla.Net.Mapping
         private Expression GetExpressionToGetColumnValueFromRow(ParameterExpression row, CqlColumn dbColumn, Type pocoDestType)
         {
             // Row.GetValue<T>(columnIndex)
-            ConstantExpression columnIndex = Expression.Constant(dbColumn.Index, IntType);
-            MethodCallExpression getValueT = Expression.Call(row, GetValueOfTMethod.MakeGenericMethod(dbColumn.Type), columnIndex);
+            var columnIndex = Expression.Constant(dbColumn.Index, IntType);
+            var getValueT = Expression.Call(row, GetValueOfTMethod.MakeGenericMethod(dbColumn.Type), columnIndex);
 
             if (pocoDestType == dbColumn.Type)
             {
@@ -461,7 +471,7 @@ namespace Scylla.Net.Mapping
 
             // Check for a converter
             Expression convertedValue;
-            Delegate converter = _typeConverter.TryGetFromDbConverter(dbColumn.Type, pocoDestType);
+            var converter = _typeConverter.TryGetFromDbConverter(dbColumn.Type, pocoDestType);
             if (converter == null)
             {
                 // No converter is available but the types don't match, so attempt to do:
@@ -490,7 +500,7 @@ namespace Scylla.Net.Mapping
             }
             // Cassandra will return null for empty collections, so make an effort to populate collection properties on the POCO with
             // empty collections instead of null in those cases
-            if (!TryGetCreateEmptyCollectionExpression(dbColumn, pocoDestType, out Expression defaultValue))
+            if (!TryGetCreateEmptyCollectionExpression(dbColumn, pocoDestType, out var defaultValue))
             {
                 // poco.SomeFieldOrProp = ... createEmptyCollection ...
                 defaultValue = Expression.Default(pocoDestType);
@@ -509,7 +519,9 @@ namespace Scylla.Net.Mapping
 
             // If the DB column isn't a collection type, just bail
             if (IsCassandraCollection(dbColumn) == false)
+            {
                 return false;
+            }
 
             // See if the POCO's type if something we can create an empty collection for
             if (!pocoDestType.GetTypeInfo().IsInterface)
@@ -546,13 +558,13 @@ namespace Scylla.Net.Mapping
                     return false;
                 }
 
-                Type openGenericType = pocoDestType.GetGenericTypeDefinition();
+                var openGenericType = pocoDestType.GetGenericTypeDefinition();
 
                 // Handle IDictionary<T, U>
                 if (openGenericType == typeof (IDictionary<,>))
                 {
                     // The driver currently uses SortedDictionary so we will too
-                    Type dictionaryType = typeof (SortedDictionary<,>).MakeGenericType(pocoDestType.GetTypeInfo().GetGenericArguments());
+                    var dictionaryType = typeof (SortedDictionary<,>).MakeGenericType(pocoDestType.GetTypeInfo().GetGenericArguments());
 
                     // (IDictionary<T, U>) new SortedDictionary<T, U>();
                     createEmptyCollection = Expression.Convert(Expression.New(dictionaryType), pocoDestType);
@@ -563,7 +575,7 @@ namespace Scylla.Net.Mapping
                 if (openGenericType == typeof (ISet<>))
                 {
                     // The driver uses List (?!) but we'll use a sorted set since that's the CQL semantics
-                    Type setType = typeof (SortedSet<>).MakeGenericType(pocoDestType.GetTypeInfo().GetGenericArguments());
+                    var setType = typeof (SortedSet<>).MakeGenericType(pocoDestType.GetTypeInfo().GetGenericArguments());
 
                     // (ISet<T>) new SortedSet<T>();
                     createEmptyCollection = Expression.Convert(Expression.New(setType), pocoDestType);
@@ -574,7 +586,7 @@ namespace Scylla.Net.Mapping
                 if (TypeConverter.ListGenericInterfaces.Contains(openGenericType))
                 {
                     // The driver uses List so we'll use that as well
-                    Type listType = typeof (List<>).MakeGenericType(pocoDestType.GetTypeInfo().GetGenericArguments());
+                    var listType = typeof (List<>).MakeGenericType(pocoDestType.GetTypeInfo().GetGenericArguments());
 
                     // (... IList<T> or ICollection<T> or IEnumerable<T> ...) new List<T>();
                     createEmptyCollection = Expression.Convert(Expression.New(listType), pocoDestType);

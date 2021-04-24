@@ -187,7 +187,7 @@ namespace Scylla.Net.Data
         /// </param>
         public override void RemoveAt(string parameterName)
         {
-            int index = GetIndex(parameterName);
+            var index = GetIndex(parameterName);
             _parameters.RemoveAt(index);
         }
 
@@ -229,7 +229,9 @@ namespace Scylla.Net.Data
         public override int IndexOf(string parameterName)
         {
             if (parameterName == null)
+            {
                 throw new ArgumentNullException("parameterName");
+            }
 
             var name = parameterName.StartsWith(":") ? parameterName : ":" + parameterName;
             return _parameters.FindIndex(p => p.ParameterName == name);
@@ -300,7 +302,9 @@ namespace Scylla.Net.Data
         public override void CopyTo(Array array, int index)
         {
             if (array == null)
+            {
                 throw new ArgumentNullException("array");
+            }
 
             var c = (ICollection)_parameters;
             c.CopyTo(array, index);
@@ -317,12 +321,16 @@ namespace Scylla.Net.Data
         public override void AddRange(Array values)
         {
             if (values == null)
+            {
                 throw new ArgumentNullException("values");
+            }
 
-            foreach (object obj in values)
+            foreach (var obj in values)
             {
                 if (!(obj is CqlParameter))
+                {
                     throw new ArgumentException("All values must be CqlParameter instances");
+                }
             }
 
             foreach (CqlParameter cqlParameter in values)
@@ -337,7 +345,7 @@ namespace Scylla.Net.Data
 
         private void SetParameter(string parameterName, CqlParameter value)
         {
-            int index = GetIndex(parameterName);
+            var index = GetIndex(parameterName);
             _parameters[index] = value;
         }
 
@@ -348,16 +356,18 @@ namespace Scylla.Net.Data
 
         private int GetIndex(string parameterName)
         {
-            int index = IndexOf(parameterName);
+            var index = IndexOf(parameterName);
             if (index < 0)
+            {
                 throw new IndexOutOfRangeException("Parameter with the given name is not found");
+            }
 
             return index;
         }
 
         private CqlParameter GetCqlParameter(string parameterName)
         {
-            int index = GetIndex(parameterName);
+            var index = GetIndex(parameterName);
             return _parameters[index];
         }
 

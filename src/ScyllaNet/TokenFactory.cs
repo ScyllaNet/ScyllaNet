@@ -13,11 +13,20 @@ namespace Scylla.Net
         public static TokenFactory GetFactory(string partitionerName)
         {
             if (partitionerName.EndsWith("Murmur3Partitioner"))
+            {
                 return M3PToken.Factory;
+            }
+
             if (partitionerName.EndsWith("RandomPartitioner"))
+            {
                 return RPToken.Factory;
+            }
+
             if (partitionerName.EndsWith("OrderedPartitioner"))
+            {
                 return OPPToken.Factory;
+            }
+
             return null;
         }
 

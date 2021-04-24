@@ -22,14 +22,14 @@ namespace Scylla.Net.DataStax.Auth.Sspi
     {
         public static string ToText( Enum value )
         {
-            FieldInfo field = value.GetType().GetField( value.ToString() );
+            var field = value.GetType().GetField( value.ToString() );
 
             if (field == null)
             {
                 return null;
             }
 
-            EnumStringAttribute[] attribs = (EnumStringAttribute[])field.GetCustomAttributes( typeof( EnumStringAttribute ), false );
+            var attribs = (EnumStringAttribute[])field.GetCustomAttributes( typeof( EnumStringAttribute ), false );
 
             if( attribs == null || attribs.Length == 0 )
             {
@@ -43,15 +43,15 @@ namespace Scylla.Net.DataStax.Auth.Sspi
 
         public static T FromText<T>( string text )
         {
-            FieldInfo[] fields = typeof( T ).GetFields();
+            var fields = typeof( T ).GetFields();
 
             EnumStringAttribute[] attribs;
 
-            foreach( FieldInfo field in fields )
+            foreach( var field in fields )
             {
                 attribs = (EnumStringAttribute[])field.GetCustomAttributes( typeof( EnumStringAttribute ), false );
 
-                foreach( EnumStringAttribute attrib in attribs )
+                foreach( var attrib in attribs )
                 {
                     if( attrib.Text == text )
                     {

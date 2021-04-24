@@ -39,7 +39,10 @@ namespace Scylla.Net.Data.Linq
             get
             {
                 if (base.QueryString == null)
+                {
                     InitializeStatement();
+                }
+
                 return base.QueryString;
             }
         }
@@ -50,7 +53,10 @@ namespace Scylla.Net.Data.Linq
             get
             {
                 if (base.QueryString == null)
+                {
                     InitializeStatement();
+                }
+
                 return base.QueryValues;
             }
         }
@@ -144,7 +150,7 @@ namespace Scylla.Net.Data.Linq
 
         protected void InitializeStatement()
         {
-            string query = GetCql(out object[] values);
+            var query = GetCql(out var values);
             SetQueryString(query);
             SetValues(values, Serializer);
         }

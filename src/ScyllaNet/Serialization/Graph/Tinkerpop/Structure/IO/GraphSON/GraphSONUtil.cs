@@ -28,7 +28,10 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
                 {GraphSONTokens.TypeKey, GraphSONUtil.FormatTypeName(prefix, typename)}
             };
             if (value != null)
+            {
                 typedValue[GraphSONTokens.ValueKey] = value;
+            }
+
             return typedValue;
         }
 

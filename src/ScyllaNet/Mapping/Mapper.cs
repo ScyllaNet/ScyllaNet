@@ -317,9 +317,9 @@ namespace Scylla.Net.Mapping
             }
 
             // Get statement and bind values from POCO
-            string cql = _cqlGenerator.GenerateUpdate<T>();
-            Func<T, object[]> getBindValues = _mapperFactory.GetValueCollector<T>(cql, primaryKeyValuesLast: true);
-            object[] values = getBindValues(poco);
+            var cql = _cqlGenerator.GenerateUpdate<T>();
+            var getBindValues = _mapperFactory.GetValueCollector<T>(cql, primaryKeyValuesLast: true);
+            var values = getBindValues(poco);
             var cqlInstance = Cql.New(cql, values, queryOptions ?? CqlQueryOptions.None).WithExecutionProfile(executionProfile);
 
             return ExecuteAsync(cqlInstance);
@@ -366,9 +366,9 @@ namespace Scylla.Net.Mapping
             }
 
             // Get the statement and bind values from POCO
-            string cql = _cqlGenerator.GenerateDelete<T>();
-            Func<T, object[]> getBindValues = _mapperFactory.GetValueCollector<T>(cql, primaryKeyValuesOnly: true);
-            object[] values = getBindValues(poco);
+            var cql = _cqlGenerator.GenerateDelete<T>();
+            var getBindValues = _mapperFactory.GetValueCollector<T>(cql, primaryKeyValuesOnly: true);
+            var values = getBindValues(poco);
             var cqlInstance = Cql.New(cql, values, queryOptions ?? CqlQueryOptions.None).WithExecutionProfile(executionProfile);
 
             return ExecuteAsync(cqlInstance);

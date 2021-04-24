@@ -32,8 +32,16 @@ namespace Scylla.Net.Responses
 
         internal Response(Frame frame)
         {
-            if (frame == null) throw new ArgumentNullException("frame");
-            if (frame.Body == null) throw new InvalidOperationException("Response body of the received frame was null");
+            if (frame == null)
+            {
+                throw new ArgumentNullException("frame");
+            }
+
+            if (frame.Body == null)
+            {
+                throw new InvalidOperationException("Response body of the received frame was null");
+            }
+
             if (!frame.Header.Flags.HasFlag(HeaderFlags.Compression) && frame.Header.BodyLength > frame.Body.Length - frame.Body.Position)
             {
                 throw new DriverInternalError(string.Format(

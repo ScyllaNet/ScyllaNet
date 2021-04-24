@@ -70,8 +70,8 @@ namespace Snappy
         public static byte[] Uncompress(byte[] compressed, int compressedOffset, int compressedSize)
         {
             // Read the uncompressed length from the front of the compressed input
-            int[] varInt = ReadUncompressedLength(compressed, compressedOffset);
-            int expectedLength = varInt[0];
+            var varInt = ReadUncompressedLength(compressed, compressedOffset);
+            var expectedLength = varInt[0];
             compressedOffset += varInt[1];
             compressedSize -= varInt[1];
 
@@ -79,7 +79,7 @@ namespace Snappy
             var uncompressed = new byte[expectedLength];
 
             // Process the entire input
-            int uncompressedSize = DecompressAllTags(
+            var uncompressedSize = DecompressAllTags(
                 compressed,
                 compressedOffset,
                 compressedSize,
@@ -99,8 +99,8 @@ namespace Snappy
         public static int Uncompress(byte[] compressed, int compressedOffset, int compressedSize, byte[] uncompressed, int uncompressedOffset)
         {
             // Read the uncompressed length from the front of the compressed input
-            int[] varInt = ReadUncompressedLength(compressed, compressedOffset);
-            int expectedLength = varInt[0];
+            var varInt = ReadUncompressedLength(compressed, compressedOffset);
+            var expectedLength = varInt[0];
             compressedOffset += varInt[1];
             compressedSize -= varInt[1];
 
@@ -109,7 +109,7 @@ namespace Snappy
                                               uncompressed.Length - uncompressedOffset);
 
             // Process the entire input
-            int uncompressedSize = DecompressAllTags(
+            var uncompressedSize = DecompressAllTags(
                 compressed,
                 compressedOffset,
                 compressedSize,
@@ -133,26 +133,26 @@ namespace Snappy
             byte[] output,
             int outputOffset)
         {
-            int outputLimit = output.Length;
+            var outputLimit = output.Length;
 
-            int ipLimit = inputOffset + inputSize;
-            int opIndex = outputOffset;
-            int ipIndex = inputOffset;
+            var ipLimit = inputOffset + inputSize;
+            var opIndex = outputOffset;
+            var ipIndex = inputOffset;
 
             while (ipIndex < ipLimit - 5)
             {
-                int opCode = SnappyInternalUtils.LoadByte(input, ipIndex++);
-                int entry = SnappyInternalUtils.LookupShort(_opLookupTable, opCode);
+                var opCode = SnappyInternalUtils.LoadByte(input, ipIndex++);
+                var entry = SnappyInternalUtils.LookupShort(_opLookupTable, opCode);
                 var trailerBytes = (int) ((uint) entry >> 11);
-                int trailer = ReadTrailer(input, ipIndex, trailerBytes);
+                var trailer = ReadTrailer(input, ipIndex, trailerBytes);
 
                 // advance the ipIndex past the op codes
                 ipIndex += (int) ((uint) entry >> 11);
-                int length = entry & 0xff;
+                var length = entry & 0xff;
 
                 if ((opCode & 0x3) == Literal)
                 {
-                    int literalLength = length + trailer;
+                    var literalLength = length + trailer;
                     CopyLiteral(input, ipIndex, output, opIndex, literalLength);
                     ipIndex += literalLength;
                     opIndex += literalLength;
@@ -162,7 +162,7 @@ namespace Snappy
                     // copyOffset/256 is encoded in bits 8..10.  By just fetching
                     // those bits, we get copyOffset (since the bit-field starts at
                     // bit 8).
-                    int copyOffset = entry & 0x700;
+                    var copyOffset = entry & 0x700;
                     copyOffset += trailer;
 
                     // inline to force hot-spot to keep inline
@@ -198,8 +198,8 @@ namespace Snappy
                     // [0..7] and write to [4..11], whereas it was only supposed to write to
                     // position 1. Thus, ten excess bytes.
                     {
-                        int spaceLeft = outputLimit - opIndex;
-                        int srcIndex = opIndex - copyOffset;
+                        var spaceLeft = outputLimit - opIndex;
+                        var srcIndex = opIndex - copyOffset;
                         if (srcIndex < outputOffset)
                         {
                             throw new CorruptionException("Invalid copy offset for opcode starting at " + (ipIndex - trailerBytes - 1));
@@ -227,7 +227,7 @@ namespace Snappy
 
             for (; ipIndex < ipLimit;)
             {
-                int[] result = DecompressTagSlow(input, ipIndex, output, outputLimit, outputOffset, opIndex);
+                var result = DecompressTagSlow(input, ipIndex, output, outputLimit, outputOffset, opIndex);
                 ipIndex = result[0];
                 opIndex = result[1];
             }
@@ -249,13 +249,13 @@ namespace Snappy
         private static int[] DecompressTagSlow(byte[] input, int ipIndex, byte[] output, int outputLimit, int outputOffset, int opIndex)
         {
             // read the op code
-            int opCode = SnappyInternalUtils.LoadByte(input, ipIndex++);
-            int entry = SnappyInternalUtils.LookupShort(_opLookupTable, opCode);
+            var opCode = SnappyInternalUtils.LoadByte(input, ipIndex++);
+            var entry = SnappyInternalUtils.LookupShort(_opLookupTable, opCode);
             var trailerBytes = (int) ((uint) entry >> 11);
             //
             // Key difference here
             //
-            int trailer = 0;
+            var trailer = 0;
             switch (trailerBytes)
             {
                 case 4:
@@ -274,11 +274,11 @@ namespace Snappy
 
             // advance the ipIndex past the op codes
             ipIndex += trailerBytes;
-            int length = entry & 0xff;
+            var length = entry & 0xff;
 
             if ((opCode & 0x3) == Literal)
             {
-                int literalLength = length + trailer;
+                var literalLength = length + trailer;
                 CopyLiteral(input, ipIndex, output, opIndex, literalLength);
                 ipIndex += literalLength;
                 opIndex += literalLength;
@@ -288,13 +288,13 @@ namespace Snappy
                 // copyOffset/256 is encoded in bits 8..10.  By just fetching
                 // those bits, we get copyOffset (since the bit-field starts at
                 // bit 8).
-                int copyOffset = entry & 0x700;
+                var copyOffset = entry & 0x700;
                 copyOffset += trailer;
 
                 // inline to force hot-spot to keep inline
                 {
-                    int spaceLeft = outputLimit - opIndex;
-                    int srcIndex = opIndex - copyOffset;
+                    var spaceLeft = outputLimit - opIndex;
+                    var srcIndex = opIndex - copyOffset;
 
                     if (srcIndex < outputOffset)
                     {
@@ -328,8 +328,8 @@ namespace Snappy
 
         private static void CopyLiteral(byte[] input, int ipIndex, byte[] output, int opIndex, int length)
         {
-            int spaceLeft = output.Length - opIndex;
-            int readableBytes = input.Length - ipIndex;
+            var spaceLeft = output.Length - opIndex;
+            var readableBytes = input.Length - ipIndex;
 
             if (readableBytes < length || spaceLeft < length)
             {
@@ -347,17 +347,17 @@ namespace Snappy
                 if (fastLength <= 64)
                 {
                     // copy long-by-long
-                    for (int i = 0; i < fastLength; i += 8)
+                    for (var i = 0; i < fastLength; i += 8)
                     {
                         SnappyInternalUtils.CopyLong(input, ipIndex + i, output, opIndex + i);
                     }
 
                     // copy byte-by-byte
-                    int slowLength = length & 0x7;
+                    var slowLength = length & 0x7;
                     // NOTE: This is not a manual array copy.  We are copying an overlapping region
                     // and we want input data to repeat as it is recopied. see incrementalCopy below.
                     //noinspection ManualArrayCopy
-                    for (int i = 0; i < slowLength; i += 1)
+                    for (var i = 0; i < slowLength; i += 1)
                     {
                         output[opIndex + fastLength + i] = input[ipIndex + fastLength + i];
                     }
@@ -386,14 +386,14 @@ namespace Snappy
 
         private static void IncrementalCopyFastPath(byte[] output, int srcIndex, int opIndex, int length)
         {
-            int copiedLength = 0;
+            var copiedLength = 0;
             while ((opIndex + copiedLength) - srcIndex < 8)
             {
                 SnappyInternalUtils.CopyLong(output, srcIndex, output, opIndex + copiedLength);
                 copiedLength += (opIndex + copiedLength) - srcIndex;
             }
 
-            for (int i = 0; i < length - copiedLength; i += 8)
+            for (var i = 0; i < length - copiedLength; i += 8)
             {
                 SnappyInternalUtils.CopyLong(output, srcIndex + i, output, opIndex + copiedLength + i);
             }
@@ -408,9 +408,9 @@ namespace Snappy
         private static int[] ReadUncompressedLength(byte[] compressed, int compressedOffset)
         {
             int result;
-            int bytesRead = 0;
+            var bytesRead = 0;
             {
-                int b = compressed[compressedOffset + bytesRead++] & 0xFF;
+                var b = compressed[compressedOffset + bytesRead++] & 0xFF;
                 result = b & 0x7f;
                 if ((b & 0x80) != 0)
                 {

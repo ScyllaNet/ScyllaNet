@@ -83,7 +83,10 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public MappingConfiguration Define(params ITypeDefinition[] maps)
         {
-            if (maps == null) return this;
+            if (maps == null)
+            {
+                return this;
+            }
 
             foreach (var typeDefinition in maps)
             {
@@ -98,7 +101,10 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public MappingConfiguration Define(params Mappings[] mappings)
         {
-            if (mappings == null) return this;
+            if (mappings == null)
+            {
+                return this;
+            }
 
             foreach (var mapping in mappings)
             {
@@ -130,7 +136,7 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public ITypeDefinition Get<T>()
         {
-            _typeDefinitions.TryGetItem(typeof(T), out ITypeDefinition existingMapping);
+            _typeDefinitions.TryGetItem(typeof(T), out var existingMapping);
 
             return existingMapping;
         }

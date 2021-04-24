@@ -292,7 +292,7 @@ namespace Scylla.Net
                                 for (var i = 0; i < partitionKeyNames.Length; i++)
                                 {
                                     var name = partitionKeyNames[i];
-                                    if (!columns.TryGetValue(name, out TableColumn c))
+                                    if (!columns.TryGetValue(name, out var c))
                                     {
                                         c = new TableColumn
                                         {
@@ -317,7 +317,7 @@ namespace Scylla.Net
                                     {
                                         var name = clusteringKeyNames[i];
                                         var dataType = types[i];
-                                        if (!columns.TryGetValue(name, out TableColumn c))
+                                        if (!columns.TryGetValue(name, out var c))
                                         {
                                             c = new TableColumn
                                             {
@@ -748,7 +748,7 @@ namespace Scylla.Net
             }
             clusteringKeys.Clear();
             //remove regular columns and set the static columns to non-static
-            if (columns.TryGetValue("value", out TableColumn valueBlob) && valueBlob.TypeCode == ColumnTypeCode.Blob)
+            if (columns.TryGetValue("value", out var valueBlob) && valueBlob.TypeCode == ColumnTypeCode.Blob)
             {
                 columns.Remove("value");
             }

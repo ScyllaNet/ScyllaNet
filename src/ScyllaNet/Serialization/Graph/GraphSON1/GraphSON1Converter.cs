@@ -74,7 +74,7 @@ namespace Scylla.Net.Serialization.Graph.GraphSON1
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (!Writers.TryGetValue(value.GetType(), out WriteDelegate writeHandler))
+            if (!Writers.TryGetValue(value.GetType(), out var writeHandler))
             {
                 return;
             }
@@ -83,7 +83,7 @@ namespace Scylla.Net.Serialization.Graph.GraphSON1
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            if (!_readers.TryGetValue(objectType, out ReadDelegate readHandler))
+            if (!_readers.TryGetValue(objectType, out var readHandler))
             {
                 return null;
             }

@@ -102,7 +102,10 @@ namespace Scylla.Net
         public Host GetHost(IPEndPoint address)
         {
             if (Hosts.TryGet(address, out var host))
+            {
                 return host;
+            }
+
             return null;
         }
 

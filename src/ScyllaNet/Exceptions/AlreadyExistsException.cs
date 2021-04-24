@@ -40,7 +40,10 @@ namespace Scylla.Net
         private static string MakeMsg(string keyspace, string table)
         {
             if (string.IsNullOrEmpty(table))
+            {
                 return string.Format("Keyspace {0} already exists", keyspace);
+            }
+
             return string.Format("Table {0}.{1} already exists", keyspace, table);
         }
     }

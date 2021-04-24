@@ -473,7 +473,7 @@ namespace Microsoft.IO
                 throw new ArgumentException("buffer length must be at least offset + count");
             }
 
-            int amountRead = this.InternalRead(buffer, offset, count, this.position);
+            var amountRead = this.InternalRead(buffer, offset, count, this.position);
             this.position += amountRead;
             return amountRead;
         }
@@ -511,15 +511,15 @@ namespace Microsoft.IO
                 throw new ArgumentException("count must be greater than buffer.Length - offset");
             }
 
-            int blockSize = this.memoryManager.BlockSize;
-            long end = (long)this.position + count;
+            var blockSize = this.memoryManager.BlockSize;
+            var end = (long)this.position + count;
             // Check for overflow
             if (end > MaxStreamLength)
             {
                 throw new IOException("Maximum capacity exceeded");
             }
 
-            long requiredBuffers = (end + blockSize - 1) / blockSize;
+            var requiredBuffers = (end + blockSize - 1) / blockSize;
 
             if (requiredBuffers * blockSize > MaxStreamLength)
             {
@@ -530,15 +530,15 @@ namespace Microsoft.IO
 
             if (this.largeBuffer == null)
             {
-                int bytesRemaining = count;
-                int bytesWritten = 0;
+                var bytesRemaining = count;
+                var bytesWritten = 0;
                 var blockAndOffset = this.GetBlockAndRelativeOffset(this.position);
 
                 while (bytesRemaining > 0)
                 {
-                    byte[] currentBlock = this.blocks[blockAndOffset.Block];
-                    int remainingInBlock = blockSize - blockAndOffset.Offset;
-                    int amountToWriteInBlock = Math.Min(remainingInBlock, bytesRemaining);
+                    var currentBlock = this.blocks[blockAndOffset.Block];
+                    var remainingInBlock = blockSize - blockAndOffset.Offset;
+                    var amountToWriteInBlock = Math.Min(remainingInBlock, bytesRemaining);
 
                     Buffer.BlockCopy(buffer, offset + bytesWritten, currentBlock, blockAndOffset.Offset, amountToWriteInBlock);
 
@@ -681,12 +681,12 @@ namespace Microsoft.IO
 
             if (this.largeBuffer == null)
             {
-                int currentBlock = 0;
-                int bytesRemaining = this.length;
+                var currentBlock = 0;
+                var bytesRemaining = this.length;
 
                 while (bytesRemaining > 0)
                 {
-                    int amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
+                    var amountToCopy = Math.Min(this.blocks[currentBlock].Length, bytesRemaining);
                     stream.Write(this.blocks[currentBlock], 0, amountToCopy);
 
                     bytesRemaining -= amountToCopy;
@@ -719,12 +719,12 @@ namespace Microsoft.IO
             if (this.largeBuffer == null)
             {
                 var blockAndOffset = this.GetBlockAndRelativeOffset(fromPosition);
-                int bytesWritten = 0;
-                int bytesRemaining = Math.Min(count, this.length - fromPosition);
+                var bytesWritten = 0;
+                var bytesRemaining = Math.Min(count, this.length - fromPosition);
 
                 while (bytesRemaining > 0)
                 {
-                    int amountToCopy = Math.Min(this.blocks[blockAndOffset.Block].Length - blockAndOffset.Offset, bytesRemaining);
+                    var amountToCopy = Math.Min(this.blocks[blockAndOffset.Block].Length - blockAndOffset.Offset, bytesRemaining);
                     Buffer.BlockCopy(this.blocks[blockAndOffset.Block], blockAndOffset.Offset, buffer, bytesWritten + offset, amountToCopy);
 
                     bytesWritten += amountToCopy;
@@ -737,7 +737,7 @@ namespace Microsoft.IO
             }
             else
             {
-                int amountToCopy = Math.Min(count, this.length - fromPosition);
+                var amountToCopy = Math.Min(count, this.length - fromPosition);
                 Buffer.BlockCopy(this.largeBuffer, fromPosition, buffer, offset, amountToCopy);
                 return amountToCopy;
             }
