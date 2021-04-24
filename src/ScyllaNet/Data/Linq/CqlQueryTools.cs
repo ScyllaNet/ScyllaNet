@@ -42,14 +42,14 @@ namespace Scylla.Net.Data.Linq
 
         private static readonly Dictionary<Type, string> CQLTypeNames = new Dictionary<Type, string>()
         {
-            {typeof (Int32), "int"},
-            {typeof (Int64), "bigint"},
+            {typeof (int), "int"},
+            {typeof (long), "bigint"},
             {typeof (string), "text"},
             {typeof (byte[]), "blob"},
-            {typeof (Boolean), "boolean"},
-            {typeof (Decimal), "decimal"},
-            {typeof (Double), "double"},
-            {typeof (Single), "float"},
+            {typeof (bool), "boolean"},
+            {typeof (decimal), "decimal"},
+            {typeof (double), "double"},
+            {typeof (float), "float"},
             {typeof (Guid), "uuid"},
             {typeof (TimeUuid), "timeuuid"},
             {typeof (DateTimeOffset), "timestamp"},
@@ -113,17 +113,17 @@ namespace Scylla.Net.Data.Linq
             return "0x" + val.ToHex();
         }
 
-        public static string Encode(Double val)
+        public static string Encode(double val)
         {
             return val.ToString(new CultureInfo("en-US"));
         }
 
-        public static string Encode(Single val)
+        public static string Encode(float val)
         {
             return val.ToString(new CultureInfo("en-US"));
         }
 
-        public static string Encode(Decimal val)
+        public static string Encode(decimal val)
         {
             return val.ToString(new CultureInfo("en-US"));
         }

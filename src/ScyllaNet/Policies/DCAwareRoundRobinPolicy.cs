@@ -31,7 +31,7 @@ namespace Scylla.Net
         private string _localDc;
         private readonly int _usedHostsPerRemoteDc;
 
-        private readonly int _maxIndex = Int32.MaxValue - 10000;
+        private readonly int _maxIndex = int.MaxValue - 10000;
         private volatile Tuple<List<Host>, List<Host>> _hosts;
         private readonly object _hostCreationLock = new object();
         ICluster _cluster;

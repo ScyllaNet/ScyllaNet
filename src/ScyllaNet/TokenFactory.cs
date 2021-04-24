@@ -30,7 +30,7 @@ namespace Scylla.Net
             return null;
         }
 
-        public abstract IToken Parse(String tokenStr);
+        public abstract IToken Parse(string tokenStr);
         public abstract IToken Hash(byte[] partitionKey);
     }
 

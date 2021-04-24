@@ -41,7 +41,7 @@ namespace Microsoft.IO
     /// </remarks>
     internal sealed class RecyclableMemoryStream : MemoryStream
     {
-        private const long MaxStreamLength = Int32.MaxValue;
+        private const long MaxStreamLength = int.MaxValue;
 
         /// <summary>
         /// All of these blocks must be the same size

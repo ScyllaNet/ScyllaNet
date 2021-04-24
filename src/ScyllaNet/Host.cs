@@ -9,6 +9,7 @@ using System.Threading;
 using Scylla.Net.Connections;
 using Scylla.Net.Connections.Control;
 using Scylla.Net.SessionManagement;
+using Scylla.Net.Sharding;
 
 namespace Scylla.Net
 {
@@ -17,10 +18,10 @@ namespace Scylla.Net
     /// </summary>
     public class Host : IEquatable<Host>
     {
-        private static readonly Logger Logger = new Logger(typeof(Host));
+        private static readonly Logger _logger = new Logger(typeof(Host));
         private long _isUpNow = 1;
         private int _distance = (int)HostDistance.Ignored;
-        private static readonly IReadOnlyCollection<string> WorkloadsDefault = new string[0];
+        private static readonly IReadOnlyCollection<string> _workloadsDefault = new string[0];
 
         /// <summary>
         /// Event that gets raised when the host is set as DOWN (not available) by the driver, after being UP.
@@ -46,19 +47,13 @@ namespace Scylla.Net
         /// <summary>
         /// Determines if the host is UP for the driver
         /// </summary>
-        public bool IsUp
-        {
-            get { return Interlocked.Read(ref _isUpNow) == 1L; }
-        }
+        public bool IsUp => Interlocked.Read(ref _isUpNow) == 1L;
 
         /// <summary>
         /// This property is going to be removed in future versions, use <see cref="IsUp"/> instead.
         /// Used to determines if the host can be considered as UP
         /// </summary>
-        public bool IsConsiderablyUp
-        {
-            get { return IsUp; }
-        }
+        public bool IsConsiderablyUp => IsUp;
 
         /// <summary>
         ///  Gets the node address.
@@ -126,6 +121,7 @@ namespace Scylla.Net
         /// </summary>
         internal IContactPoint ContactPoint { get; }
 
+        private ShardingInfo _shardingInfo;
         /// <summary>
         /// Creates a new instance of <see cref="Host"/>.
         /// </summary>
@@ -137,8 +133,26 @@ namespace Scylla.Net
         internal Host(IPEndPoint address, IContactPoint contactPoint)
         {
             Address = address ?? throw new ArgumentNullException(nameof(address));
-            Workloads = WorkloadsDefault;
+            Workloads = _workloadsDefault;
             ContactPoint = contactPoint;
+        }
+
+        /// <summary>
+        ///     Get Sharding Info
+        /// </summary>
+        /// <returns></returns>
+        public ShardingInfo GetShardingInfo()
+        {
+            return _shardingInfo;
+        }
+
+        /// <summary>
+        ///     Set Sharding Info
+        /// </summary>
+        /// <param name="shardingInfo"></param>
+        public void SetShardingInfo(ShardingInfo shardingInfo)
+        {
+            _shardingInfo = shardingInfo;
         }
 
         /// <summary>
@@ -152,7 +166,7 @@ namespace Scylla.Net
             {
                 return false;
             }
-            Logger.Warning("Host {0} considered as DOWN.", Address);
+            _logger.Warning("Host {0} considered as DOWN.", Address);
             Down?.Invoke(this);
             return true;
         }
@@ -167,14 +181,14 @@ namespace Scylla.Net
             {
                 return false;
             }
-            Logger.Info("Host {0} is now UP", Address);
+            _logger.Info("Host {0} is now UP", Address);
             Up?.Invoke(this);
             return true;
         }
 
         public void SetAsRemoved()
         {
-            Logger.Info("Decommissioning node {0}", Address);
+            _logger.Info("Decommissioning node {0}", Address);
             Interlocked.Exchange(ref _isUpNow, 0);
             Remove?.Invoke();
         }
@@ -221,7 +235,7 @@ namespace Scylla.Net
             }
             else
             {
-                Workloads = WorkloadsDefault;
+                Workloads = _workloadsDefault;
             }
 
             if (row.ContainsColumn("dse_version"))

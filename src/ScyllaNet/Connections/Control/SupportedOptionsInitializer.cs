@@ -22,7 +22,7 @@ namespace Scylla.Net.Connections.Control
             _metadata = metadata;
         }
 
-        public async Task ApplySupportedOptionsAsync(IConnection connection)
+        public async Task ApplySupportedOptionsAsync(IConnection connection, Host host)
         {
             var request = new OptionsRequest();
             var response = await connection.Send(request).ConfigureAwait(false);
@@ -37,7 +37,14 @@ namespace Scylla.Net.Connections.Control
                 throw new DriverInternalError("Expected SupportedResponse, obtained " + response.GetType().FullName);
             }
 
+            ParseShardingAware(supportedResponse.Output.Options, connection, host);
             ApplyProductTypeOption(supportedResponse.Output.Options);
+        }
+
+        private void ParseShardingAware(IDictionary<string, string[]> options,IConnection connection, Host host)
+        {
+            var sharding = Sharding.ConnectionShardingInfo.ParseShardingInfo(options);
+            host.SetShardingInfo(sharding.GetShardingInfo());
         }
 
         private void ApplyProductTypeOption(IDictionary<string, string[]> options)

@@ -8,6 +8,6 @@ namespace Scylla.Net.Connections.Control
 {
     internal interface ISupportedOptionsInitializer
     {
-        Task ApplySupportedOptionsAsync(IConnection connection);
+        Task ApplySupportedOptionsAsync(IConnection connection,Host host);
     }
 }
