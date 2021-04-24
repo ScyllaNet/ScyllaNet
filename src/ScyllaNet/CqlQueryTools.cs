@@ -19,9 +19,9 @@ namespace Scylla.Net
         /// The cql query to get the local schema version information
         /// </summary>
         public const string SelectSchemaLocal = "SELECT schema_version FROM system.local WHERE key='local'";
-        private static readonly Regex IdentifierRx = new Regex(@"\b[a-z][a-z0-9_]*\b", RegexOptions.Compiled);
+        private static readonly Regex _identifierRx = new Regex(@"\b[a-z][a-z0-9_]*\b", RegexOptions.Compiled);
 
-        private static readonly string[] HexStringTable =
+        private static readonly string[] _hexStringTable =
         {
             "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F",
             "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1A", "1B", "1C", "1D", "1E", "1F",
@@ -45,11 +45,9 @@ namespace Scylla.Net
         {
             if (!string.IsNullOrEmpty(id))
             {
-                if (!IdentifierRx.IsMatch(id))
-                {
-                    return QuoteIdentifier(id);
-                }
-                return id;
+                return !_identifierRx.IsMatch(id)
+                    ? QuoteIdentifier(id)
+                    : id;
             }
             throw new ArgumentException("invalid identifier");
         }
@@ -95,7 +93,7 @@ namespace Scylla.Net
             {
                 foreach (var b in value)
                 {
-                    stringBuilder.Append(HexStringTable[b]);
+                    stringBuilder.Append(_hexStringTable[b]);
                 }
             }
 

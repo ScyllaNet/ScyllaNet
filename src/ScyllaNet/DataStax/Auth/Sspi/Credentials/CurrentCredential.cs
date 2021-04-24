@@ -33,9 +33,9 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
 
             // -- Package --
             // Copy off for the call, since this.SecurityPackage is a property.
-            packageName = this.SecurityPackage;
+            packageName = SecurityPackage;
 
-            this.Handle = new SafeCredentialHandle();
+            Handle = new SafeCredentialHandle();
 
             // The finally clause is the actual constrained region. The VM pre-allocates any stack space,
             // performs any allocations it needs to prepare methods for execution, and postpones any 
@@ -52,7 +52,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
                    IntPtr.Zero,
                    IntPtr.Zero,
                    IntPtr.Zero,
-                   ref this.Handle.rawHandle,
+                   ref Handle.rawHandle,
                    ref rawExpiry
                );
             }
@@ -62,7 +62,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
                 throw new SspiException( "Failed to call AcquireCredentialHandle", status );
             }
 
-            this.Expiry = rawExpiry.ToDateTime();
+            Expiry = rawExpiry.ToDateTime();
         }
 
     }

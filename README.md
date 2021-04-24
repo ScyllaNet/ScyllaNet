@@ -1,3 +1,5 @@
+![alt text](https://github.com/scyllanet/scyllanet/blob/main/scylla_net.jpg?raw=true)
+
 # Scylla.Net
 
 Is a fork of the DataStax C# Driver for Apache Cassandra, developed by DataStax.

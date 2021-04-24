@@ -39,12 +39,12 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
         /// <param name="package">The security package to acquire the credential from.</param>
         public Credential( string package )
         {
-            this.disposed = false;
-            this.securityPackage = package;
+            disposed = false;
+            securityPackage = package;
 
-            this.expiry = DateTime.MinValue;
+            expiry = DateTime.MinValue;
 
-            this.PackageInfo = PackageSupport.GetPackageCapabilities( this.SecurityPackage );
+            PackageInfo = PackageSupport.GetPackageCapabilities( SecurityPackage );
         }
         
         /// <summary>
@@ -61,7 +61,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
             {
                 CheckLifecycle();
 
-                return this.securityPackage;
+                return securityPackage;
             }
         }
 
@@ -87,13 +87,13 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
                 RuntimeHelpers.PrepareConstrainedRegions();
                 try
                 {
-                    this.safeCredHandle.DangerousAddRef( ref gotRef );
+                    safeCredHandle.DangerousAddRef( ref gotRef );
                 }
                 catch( Exception )
                 {
                     if( gotRef == true )
                     {
-                        this.safeCredHandle.DangerousRelease();
+                        safeCredHandle.DangerousRelease();
                         gotRef = false;
                     }
                     throw;
@@ -103,12 +103,12 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
                     if( gotRef )
                     {
                         status = CredentialNativeMethods.QueryCredentialsAttribute_Name(
-                            ref this.safeCredHandle.rawHandle,
+                            ref safeCredHandle.rawHandle,
                             CredentialQueryAttrib.Names,
                             ref carrier
                         );
 
-                        this.safeCredHandle.DangerousRelease();
+                        safeCredHandle.DangerousRelease();
 
                         if( status == SecurityStatus.OK && carrier.Name != IntPtr.Zero )
                         {
@@ -142,14 +142,14 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
             {
                 CheckLifecycle();
 
-                return this.expiry;
+                return expiry;
             }
 
             protected set
             {
                 CheckLifecycle();
                                 
-                this.expiry = value;
+                expiry = value;
             }
         }
 
@@ -162,14 +162,14 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
             {
                 CheckLifecycle();
 
-                return this.safeCredHandle;
+                return safeCredHandle;
             }
 
             protected set
             {
                 CheckLifecycle();
 
-                this.safeCredHandle = value;
+                safeCredHandle = value;
             }
         }
 
@@ -184,20 +184,20 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
 
         protected virtual void Dispose( bool disposing )
         {
-            if ( this.disposed == false )
+            if ( disposed == false )
             {
                 if ( disposing )
                 {
-                    this.safeCredHandle.Dispose();
+                    safeCredHandle.Dispose();
                 }
 
-                this.disposed = true;
+                disposed = true;
             }
         }
 
         private void CheckLifecycle()
         {
-            if( this.disposed )
+            if( disposed )
             {
                 throw new ObjectDisposedException( "Credential" );
             }

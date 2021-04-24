@@ -26,16 +26,17 @@ namespace Scylla.Net
         private const long NanosPerHour = 60L * NanosPerMinute;
         private const int DaysPerWeek = 7;
         private const int MonthsPerYear = 12;
-        //                       ticks * micro * milli * second * minute
+
+        //                              ticks * micro * milli * second * minute
         private const long TicksPerDay = 10L * 1000L * 1000L * 60L * 60 * 24;
         private const long NanosPerTick = 100L;
-        private static readonly Regex StandardRegex = new Regex(
+        private static readonly Regex _standardRegex = new Regex(
             @"(\d+)(y|mo|w|d|h|s|ms|us|µs|ns|m)", RegexOptions.Compiled);
-        private static readonly Regex Iso8601Regex = new Regex(
+        private static readonly Regex _iso8601Regex = new Regex(
             @"^P((\d+)Y)?((\d+)M)?((\d+)D)?(T((\d+)H)?((\d+)M)?((\d+(\.\d+)?)S)?)?$", RegexOptions.Compiled);
-        private static readonly Regex Iso8601WeekRegex = new Regex(
+        private static readonly Regex _iso8601WeekRegex = new Regex(
             @"^P(\d+)W$", RegexOptions.Compiled);
-        private static readonly Regex Iso8601AlternateRegex = new Regex(
+        private static readonly Regex _iso8601AlternateRegex = new Regex(
             @"^P(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$", RegexOptions.Compiled);
 
         public static readonly Duration Zero = new Duration();
@@ -350,7 +351,7 @@ namespace Scylla.Net
         private static Duration ParseStandardFormat(bool isNegative, string source, string input)
         {
             var builder = new Builder(isNegative);
-            var matches = StandardRegex.Matches(source.ToLowerInvariant());
+            var matches = _standardRegex.Matches(source.ToLowerInvariant());
             foreach (Match match in matches)
             {
                 builder.Add(match.Groups[1].Value, match.Groups[2].Value, input);
@@ -360,7 +361,7 @@ namespace Scylla.Net
 
         private static Duration ParseIso8601Format(bool isNegative, string source)
         {
-            var match = Iso8601Regex.Match(source);
+            var match = _iso8601Regex.Match(source);
             if (!match.Success)
             {
                 throw new FormatException(string.Format("Unable to convert '{0}' to a duration", source));
@@ -406,7 +407,7 @@ namespace Scylla.Net
 
         private static Duration ParseIso8601AlternativeFormat(bool isNegative, string source)
         {
-            var match = Iso8601AlternateRegex.Match(source);
+            var match = _iso8601AlternateRegex.Match(source);
             if (!match.Success)
             {
                 throw new FormatException(string.Format("Unable to convert '{0}' to a duration", source));
@@ -422,7 +423,7 @@ namespace Scylla.Net
 
         private static Duration ParseIso8601WeekFormat(bool isNegative, string source)
         {
-            var match = Iso8601WeekRegex.Match(source);
+            var match = _iso8601WeekRegex.Match(source);
             if (!match.Success)
             {
                 throw new FormatException(string.Format("Unable to convert '{0}' to a duration", source));

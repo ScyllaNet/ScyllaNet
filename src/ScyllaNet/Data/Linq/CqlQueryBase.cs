@@ -50,7 +50,7 @@ namespace Scylla.Net.Data.Linq
 
         internal StatementFactory StatementFactory { get; set; }
 
-        StatementFactory IInternalStatement.StatementFactory => this.StatementFactory;
+        StatementFactory IInternalStatement.StatementFactory => StatementFactory;
 
         /// <summary>
         /// The information associated with the TEntity

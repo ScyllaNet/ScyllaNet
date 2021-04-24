@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Scylla.Net.Connections;
 using Scylla.Net.Connections.Control;
 using Scylla.Net.DataStax.Graph;
@@ -28,7 +27,6 @@ using Scylla.Net.Requests;
 using Scylla.Net.Serialization;
 using Scylla.Net.SessionManagement;
 using Scylla.Net.Tasks;
-
 using Microsoft.IO;
 
 namespace Scylla.Net

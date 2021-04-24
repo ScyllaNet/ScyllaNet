@@ -28,7 +28,7 @@ namespace Scylla.Net
 
         public void Initialize(ICluster cluster)
         {
-            this._cluster = cluster;
+            _cluster = cluster;
         }
 
         /// <summary>

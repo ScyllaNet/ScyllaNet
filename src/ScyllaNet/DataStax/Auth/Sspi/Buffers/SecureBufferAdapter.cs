@@ -116,29 +116,29 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Buffers
         {
             this.buffers = buffers;
 
-            this.disposed = false;
+            disposed = false;
 
-            this.bufferHandles = new GCHandle[this.buffers.Count];
-            this.bufferCarrier = new SecureBufferInternal[this.buffers.Count];
+            bufferHandles = new GCHandle[this.buffers.Count];
+            bufferCarrier = new SecureBufferInternal[this.buffers.Count];
 
             for ( var i = 0; i < this.buffers.Count; i++ )
             {
-                this.bufferHandles[i] = GCHandle.Alloc( this.buffers[i].Buffer, GCHandleType.Pinned );
+                bufferHandles[i] = GCHandle.Alloc( this.buffers[i].Buffer, GCHandleType.Pinned );
 
-                this.bufferCarrier[i] = new SecureBufferInternal();
-                this.bufferCarrier[i].Type = this.buffers[i].Type;
-                this.bufferCarrier[i].Count = this.buffers[i].Buffer.Length;
-                this.bufferCarrier[i].Buffer = bufferHandles[i].AddrOfPinnedObject();
+                bufferCarrier[i] = new SecureBufferInternal();
+                bufferCarrier[i].Type = this.buffers[i].Type;
+                bufferCarrier[i].Count = this.buffers[i].Buffer.Length;
+                bufferCarrier[i].Buffer = bufferHandles[i].AddrOfPinnedObject();
             }
 
-            this.bufferCarrierHandle = GCHandle.Alloc( bufferCarrier, GCHandleType.Pinned );
+            bufferCarrierHandle = GCHandle.Alloc( bufferCarrier, GCHandleType.Pinned );
 
-            this.descriptor = new SecureBufferDescInternal();
-            this.descriptor.Version = SecureBufferDescInternal.ApiVersion;
-            this.descriptor.NumBuffers = this.buffers.Count;
-            this.descriptor.Buffers = bufferCarrierHandle.AddrOfPinnedObject();
+            descriptor = new SecureBufferDescInternal();
+            descriptor.Version = SecureBufferDescInternal.ApiVersion;
+            descriptor.NumBuffers = this.buffers.Count;
+            descriptor.Buffers = bufferCarrierHandle.AddrOfPinnedObject();
 
-            this.descriptorHandle = GCHandle.Alloc( descriptor, GCHandleType.Pinned );
+            descriptorHandle = GCHandle.Alloc( descriptor, GCHandleType.Pinned );
         }
         /*
         [ReliabilityContract( Consistency.WillNotCorruptState, Cer.Success )]
@@ -157,12 +157,12 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Buffers
         {
             get
             {
-                if ( this.disposed )
+                if ( disposed )
                 {
                     throw new ObjectDisposedException( "Cannot use SecureBufferListHandle after it has been disposed" );
                 }
 
-                return this.descriptorHandle.AddrOfPinnedObject();
+                return descriptorHandle.AddrOfPinnedObject();
             }
         }
 
@@ -171,7 +171,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Buffers
         /// </summary>
         public void Dispose()
         {
-            this.Dispose( true );
+            Dispose( true );
             GC.SuppressFinalize( this );
         }
 
@@ -185,38 +185,38 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Buffers
         [ReliabilityContract( Consistency.WillNotCorruptState, Cer.Success )]
         private void Dispose( bool disposing )
         {
-            if ( this.disposed == true ) { return; }
+            if ( disposed == true ) { return; }
 
             if ( disposing )
             {
                 // When this class is actually being used for its original purpose - to convey buffers 
                 // back and forth to SSPI calls - we need to copy the potentially modified structure members
                 // back to our caller's buffer.
-                for( var i = 0; i < this.buffers.Count; i++ )
+                for( var i = 0; i < buffers.Count; i++ )
                 {
-                    this.buffers[i].Length = this.bufferCarrier[i].Count;
+                    buffers[i].Length = bufferCarrier[i].Count;
                 }
             }
 
-            for( var i = 0; i < this.bufferHandles.Length; i++ )
+            for( var i = 0; i < bufferHandles.Length; i++ )
             {
-                if( this.bufferHandles[i].IsAllocated )
+                if( bufferHandles[i].IsAllocated )
                 {
-                    this.bufferHandles[i].Free();
+                    bufferHandles[i].Free();
                 }
             }
 
-            if( this.bufferCarrierHandle.IsAllocated )
+            if( bufferCarrierHandle.IsAllocated )
             {
-                this.bufferCarrierHandle.Free();
+                bufferCarrierHandle.Free();
             }
 
-            if( this.descriptorHandle.IsAllocated )
+            if( descriptorHandle.IsAllocated )
             {
-                this.descriptorHandle.Free();
+                descriptorHandle.Free();
             }
 
-            this.disposed = true;
+            disposed = true;
         }
     }
 }
