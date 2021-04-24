@@ -1,4 +1,4 @@
-![alt text](https://github.com/scyllanet/scyllanet/blob/main/scylla_net.jpg?raw=true)
+![ScyllaNET](https://github.com/scyllanet/scyllanet/blob/main/scylla_net.png?raw=true)
 
 # Scylla.Net
 
