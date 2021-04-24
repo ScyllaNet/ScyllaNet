@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Scylla.Net is a fork of the DataStax C# Driver for Apache Cassandra, developed by DataStax, Scylla.Net aims to be a driver maintained by the ScyllaDB exclusive community.</Description>
+    <Copyright>Copyright © by Scylla.Net, DataStax</Copyright>
+    <AssemblyTitle>Scylla.Net is the open source .NET data provider for ScyllaDB</AssemblyTitle>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <FileVersion>0.0.1.0</FileVersion>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <Authors>Rafael Almeida</Authors>
+    <TargetFrameworks Condition="'$(BuildCoreOnly)' != 'True'">netstandard2.1;net452</TargetFrameworks>
+    <TargetFramework Condition="'$(BuildCoreOnly)' == 'True'">netstandard2.1</TargetFramework>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>Scylla.Net</AssemblyName>
+    <Product>Scylla.Net is the open source .NET data provider for ScyllaDB</Product>
+    <SignAssembly>false</SignAssembly>
+    <PackageId>Scylla.Net</PackageId>
+    <Title>Scylla.Net is the open source .NET data provider for ScyllaDB</Title>
+    <PackageTags>scylladb;netstandard;driver;client;database;nosql;dotnet;netcore;db</PackageTags>
+    <PackageLicenseUrl>https://github.com/ralmsdeveloper/scyllanet/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/ralmsdeveloper/scyllanett</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ralmsdeveloper/scyllanet</PackageProjectUrl>
+    <LangVersion>7.3</LangVersion>
+    <Version>0.0.1-alpha1</Version>
+    <Company>Scylla.Net</Company>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^net\d'))">
+    <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(TargetFramework)', '^netstandard\d'))">
+    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="System.Management" Version="4.7.0" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.0.0" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.6.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+  
+</Project>

@@ -1,0 +1,79 @@
+﻿// Copyright (c) 2014-2020 DataStax Inc.
+// Copyright (c) 2020, Rafael Almeida (ralmsdevelper)
+// Licensed under the Apache License, Version 2.0. See LICENCE in the project root for license information.
+
+using Scylla.Net.Requests;
+
+namespace Scylla.Net.Responses
+{
+    internal class ResultResponse : Response
+    {
+        public enum ResultResponseKind
+        {
+            Void = 1,
+            Rows = 2,
+            SetKeyspace = 3,
+            Prepared = 4,
+            SchemaChange = 5
+        };
+
+        public const byte OpCode = 0x08;
+
+        /// <summary>
+        /// Cassandra result kind
+        /// </summary>
+        public ResultResponseKind Kind { get; private set; }
+
+        /// <summary>
+        /// Output of the result response based on the kind of result
+        /// </summary>
+        public IOutput Output { get; private set; }
+
+        /// <summary>
+        /// Is null if new_metadata_id is not set.
+        /// </summary>
+        public ResultMetadata NewResultMetadata { get; }
+
+        internal ResultResponse(Frame frame) : base(frame)
+        {
+            Kind = (ResultResponseKind) Reader.ReadInt32();
+            switch (Kind)
+            {
+                case ResultResponseKind.Void:
+                    Output = new OutputVoid(TraceId);
+                    break;
+                case ResultResponseKind.Rows:
+                    var outputRows = new OutputRows(Reader, frame.ResultMetadata, TraceId);
+                    Output = outputRows;
+                    if (outputRows.ResultRowsMetadata.HasNewResultMetadataId())
+                    {
+                        NewResultMetadata = new ResultMetadata(
+                            outputRows.ResultRowsMetadata.NewResultMetadataId, outputRows.ResultRowsMetadata);
+                    }
+                    break;
+                case ResultResponseKind.SetKeyspace:
+                    Output = new OutputSetKeyspace(Reader.ReadString());
+                    break;
+                case ResultResponseKind.Prepared:
+                    Output = new OutputPrepared(frame.Header.Version, Reader);
+                    break;
+                case ResultResponseKind.SchemaChange:
+                    Output = new OutputSchemaChange(frame.Header.Version, Reader, TraceId);
+                    break;
+                default:
+                    throw new DriverInternalError("Unknown ResultResponseKind Type");
+            }
+        }
+
+        protected ResultResponse(ResultResponseKind kind, IOutput output)
+        {
+            Kind = kind;
+            Output = output;
+        }
+
+        internal static ResultResponse Create(Frame frame)
+        {
+            return new ResultResponse(frame);
+        }
+    }
+}
