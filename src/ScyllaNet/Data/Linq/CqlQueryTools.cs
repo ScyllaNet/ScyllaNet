@@ -89,7 +89,7 @@ namespace Scylla.Net.Data.Linq
             var stringBuilder = new StringBuilder();
             if (value != null)
             {
-                foreach (byte b in value)
+                foreach (var b in value)
                 {
                     stringBuilder.Append(HexStringTable[b]);
                 }
@@ -131,15 +131,21 @@ namespace Scylla.Net.Data.Linq
         public static string Encode(DateTimeOffset val)
         {
             if (val == DateTimeOffset.MinValue)
+            {
                 return 0.ToString(CultureInfo.InvariantCulture);
+            }
             else
+            {
                 return Convert.ToInt64(Math.Floor((val - UnixStart).TotalMilliseconds)).ToString(CultureInfo.InvariantCulture);
+            }
         }
 
         private static string GetCqlTypeFromType(Type tpy)
         {
             if (CQLTypeNames.ContainsKey(tpy))
+            {
                 return CQLTypeNames[tpy];
+            }
             else
             {
                 if (tpy.GetTypeInfo().IsGenericType)
@@ -163,12 +169,17 @@ namespace Scylla.Net.Data.Linq
                     }
                 }
                 else if (tpy.Name == "BigDecimal")
+                {
                     return "decimal";
+                }
             }
 
             var supportedTypes = new StringBuilder();
-            foreach (Type tn in CQLTypeNames.Keys)
+            foreach (var tn in CQLTypeNames.Keys)
+            {
                 supportedTypes.Append(tn.FullName + ", ");
+            }
+
             supportedTypes.Append(", their nullable counterparts, and implementations of IEnumerable<T>, IDictionary<K,V>");
 
             throw new ArgumentException("Unsupported datatype " + tpy.Name + ". Supported are: " + supportedTypes.ToString() + ".");

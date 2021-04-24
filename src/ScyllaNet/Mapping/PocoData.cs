@@ -68,8 +68,16 @@ namespace Scylla.Net.Mapping
         public PocoData(Type pocoType, string tableName, string keyspaceName, LookupKeyedCollection<string, PocoColumn> columns,
                         string[] partitionkeys, Tuple<string, SortOrder>[] clusteringKeys, bool caseSensitive, bool compact, bool allowFiltering)
         {
-            if (partitionkeys == null) throw new ArgumentNullException("partitionkeys");
-            if (clusteringKeys == null) throw new ArgumentNullException("clusteringKeys");
+            if (partitionkeys == null)
+            {
+                throw new ArgumentNullException("partitionkeys");
+            }
+
+            if (clusteringKeys == null)
+            {
+                throw new ArgumentNullException("clusteringKeys");
+            }
+
             PocoType = pocoType ?? throw new ArgumentNullException("pocoType");
             TableName = tableName ?? throw new ArgumentNullException("tableName");
             Columns = columns ?? throw new ArgumentNullException("columns");
@@ -118,7 +126,7 @@ namespace Scylla.Net.Mapping
         /// </summary>
         public PocoColumn GetColumnByMemberName(string memberName)
         {
-            _columnsByMemberName.TryGetValue(memberName, out PocoColumn column);
+            _columnsByMemberName.TryGetValue(memberName, out var column);
             return column;
         }
 

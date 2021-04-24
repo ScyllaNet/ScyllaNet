@@ -354,9 +354,9 @@ namespace Scylla.Net
                     };
                 case ColumnTypeCode.Map:
                     innercode = (ColumnTypeCode) reader.ReadUInt16();
-                    IColumnInfo kci = GetColumnInfo(reader, innercode);
+                    var kci = GetColumnInfo(reader, innercode);
                     var vinnercode = (ColumnTypeCode) reader.ReadUInt16();
-                    IColumnInfo vci = GetColumnInfo(reader, vinnercode);
+                    var vci = GetColumnInfo(reader, vinnercode);
                     return new MapColumnInfo
                     {
                         KeyTypeCode = innercode,

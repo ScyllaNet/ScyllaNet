@@ -21,7 +21,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi
         public static SecPkgInfo GetPackageCapabilities( string packageName )
         {
             SecPkgInfo info;
-            SecurityStatus status = SecurityStatus.InternalError;
+            var status = SecurityStatus.InternalError;
 
             IntPtr rawInfoPtr;
             
@@ -66,12 +66,12 @@ namespace Scylla.Net.DataStax.Auth.Sspi
         /// <returns></returns>
         public static SecPkgInfo[] EnumeratePackages()
         {
-            SecurityStatus status = SecurityStatus.InternalError;
+            var status = SecurityStatus.InternalError;
             SecPkgInfo[] packages = null;
             IntPtr pkgArrayPtr;
             IntPtr pkgPtr;
-            int numPackages = 0;
-            int pkgSize = Marshal.SizeOf( typeof(SecPkgInfo) );
+            var numPackages = 0;
+            var pkgSize = Marshal.SizeOf( typeof(SecPkgInfo) );
 
             pkgArrayPtr = new IntPtr();
 
@@ -95,12 +95,12 @@ namespace Scylla.Net.DataStax.Auth.Sspi
 
                             packages = new SecPkgInfo[numPackages];
 
-                            for( int i = 0; i < numPackages; i++ )
+                            for( var i = 0; i < numPackages; i++ )
                             {
                                 packages[i] = new SecPkgInfo();
                             }
                             
-                            for( int i = 0; i < numPackages; i++ )
+                            for( var i = 0; i < numPackages; i++ )
                             {
                                 pkgPtr = IntPtr.Add( pkgArrayPtr, i * pkgSize );
 

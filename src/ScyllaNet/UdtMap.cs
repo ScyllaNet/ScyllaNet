@@ -193,7 +193,7 @@ namespace Scylla.Net
         protected internal string GetUdtFieldName(PropertyInfo property)
         {
             // See if there is a mapping registered for the specific property
-            if (_propertyToFieldName.TryGetValue(property, out string fieldName))
+            if (_propertyToFieldName.TryGetValue(property, out var fieldName))
             {
                 return fieldName;
             }
@@ -208,12 +208,12 @@ namespace Scylla.Net
         protected internal PropertyInfo GetPropertyForUdtField(string udtFieldName)
         {
             // See if there is a mapping registered for the field
-            if (_fieldNameToProperty.TryGetValue(udtFieldName, out PropertyInfo prop))
+            if (_fieldNameToProperty.TryGetValue(udtFieldName, out var prop))
             {
                 return prop;
             }
 
-            string propertyName = udtFieldName;
+            var propertyName = udtFieldName;
 
             // Try to find a property with the UDT field name on type T
             prop = NetType.GetTypeInfo().GetProperty(propertyName, PropertyFlags);

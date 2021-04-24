@@ -36,7 +36,7 @@ namespace Scylla.Net.Data.Linq
         /// To execute this CqlQuery use <c>Execute()</c> method.</returns>
         public static CqlQuery<TResult> Select<TSource, TResult>(this CqlQuery<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
-            Expression expression = source.Expression;
+            var expression = source.Expression;
             CqlQuery<TResult> result;
             if (typeof (TSource) != typeof (TResult))
             {

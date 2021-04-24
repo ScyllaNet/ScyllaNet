@@ -12,8 +12,8 @@ namespace Scylla.Net.Responses
         internal ErrorResponse(Frame frame)
             : base(frame)
         {
-            int errorCode = Reader.ReadInt32();
-            string message = Reader.ReadString();
+            var errorCode = Reader.ReadInt32();
+            var message = Reader.ReadString();
             Output = OutputError.CreateOutputError(errorCode, message, Reader);
         }
 

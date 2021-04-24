@@ -24,7 +24,10 @@ namespace Scylla.Net.Data.Linq
         public override void Append(CqlCommand cqlCommand)
         {
             if (cqlCommand.GetTable().GetTableType() == TableType.Counter)
+            {
                 _batchType = BatchType.Counter;
+            }
+
             _batchScript.Append(cqlCommand);
             _batchScript.AppendLine(";");
         }
@@ -40,7 +43,7 @@ namespace Scylla.Net.Data.Linq
             {
                 return TaskHelper.FromException<RowSet>(new RequestInvalidException("The Batch must contain queries to execute"));
             }
-            string cqlQuery = GetCql();
+            var cqlQuery = GetCql();
             var stmt = new SimpleStatement(cqlQuery);
             this.CopyQueryPropertiesTo(stmt);
             return _session.ExecuteAsync(stmt, executionProfile);

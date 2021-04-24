@@ -61,8 +61,11 @@ namespace Scylla.Net
         /// <returns><c>this</c> object.</returns>
         public SimpleAuthInfoProvider AddAll(Dictionary<string, string> properties)
         {
-            foreach (KeyValuePair<string, string> kv in properties)
+            foreach (var kv in properties)
+            {
                 _credentials[kv.Key] = kv.Value;
+            }
+
             return this;
         }
     }

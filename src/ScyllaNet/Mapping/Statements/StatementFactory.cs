@@ -149,8 +149,16 @@ namespace Scylla.Net.Mapping.Statements
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj)) return false;
-                if (ReferenceEquals(this, obj)) return true;
+                if (ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+
+                if (ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+
                 return obj.GetType() == GetType() && Equals((CacheKey)obj);
             }
 

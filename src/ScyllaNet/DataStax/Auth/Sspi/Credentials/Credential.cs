@@ -77,7 +77,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
                 QueryNameAttribCarrier carrier;
                 SecurityStatus status;
                 string name = null;
-                bool gotRef = false;
+                var gotRef = false;
 
                 CheckLifecycle();
 

@@ -83,7 +83,7 @@ namespace Scylla.Net.Serialization
 
         public object Deserialize(ProtocolVersion version, byte[] buffer, int offset, int length, ColumnTypeCode typeCode, IColumnInfo typeInfo)
         {
-            if (_primitiveDeserializers.TryGetValue(typeCode, out ITypeSerializer typeSerializer))
+            if (_primitiveDeserializers.TryGetValue(typeCode, out var typeSerializer))
             {
                 return typeSerializer.Deserialize((byte)version, buffer, offset, length, typeInfo);
             }
@@ -114,7 +114,7 @@ namespace Scylla.Net.Serialization
 
         public Type GetClrType(ColumnTypeCode typeCode, IColumnInfo typeInfo)
         {
-            if (!_defaultTypes.TryGetValue(typeCode, out Func<IColumnInfo, Type> clrTypeHandler))
+            if (!_defaultTypes.TryGetValue(typeCode, out var clrTypeHandler))
             {
                 throw new ArgumentException($"No handler defined for type {typeCode}");
             }
@@ -123,7 +123,7 @@ namespace Scylla.Net.Serialization
         
         public Type GetClrTypeForGraph(ColumnTypeCode typeCode, IColumnInfo typeInfo)
         {
-            if (!_defaultGraphTypes.TryGetValue(typeCode, out Func<IColumnInfo, Type> clrTypeHandler))
+            if (!_defaultGraphTypes.TryGetValue(typeCode, out var clrTypeHandler))
             {
                 throw new ArgumentException($"No handler defined for type {typeCode}");
             }
@@ -135,7 +135,7 @@ namespace Scylla.Net.Serialization
             var customTypeInfo = (CustomColumnInfo)typeInfo;
             if (customTypeInfo.CustomTypeName == null || !customTypeInfo.CustomTypeName.StartsWith(DataTypeParser.UdtTypeName))
             {
-                if (_customDeserializers.TryGetValue(customTypeInfo, out ITypeSerializer serializer))
+                if (_customDeserializers.TryGetValue(customTypeInfo, out var serializer))
                 {
                     return serializer.Type;
                 }
@@ -153,7 +153,7 @@ namespace Scylla.Net.Serialization
         public ColumnTypeCode GetCqlType(Type type, out IColumnInfo typeInfo)
         {
             typeInfo = null;
-            if (_primitiveSerializers.TryGetValue(type, out ITypeSerializer typeSerializer))
+            if (_primitiveSerializers.TryGetValue(type, out var typeSerializer))
             {
                 return typeSerializer.CqlType;
             }
@@ -164,7 +164,7 @@ namespace Scylla.Net.Serialization
             }
             if (type.IsArray)
             {
-                ColumnTypeCode valueTypeCode = GetCqlType(type.GetElementType(), out IColumnInfo valueTypeInfo);
+                var valueTypeCode = GetCqlType(type.GetElementType(), out var valueTypeInfo);
                 typeInfo = new ListColumnInfo
                 {
                     ValueTypeCode = valueTypeCode,
@@ -186,7 +186,7 @@ namespace Scylla.Net.Serialization
                     if (typeof(IDictionary).GetTypeInfo().IsAssignableFrom(type) && 
                         interfaces.Any(t => IntrospectionExtensions.GetTypeInfo(t).IsGenericType && t.GetGenericTypeDefinition() == typeof(IDictionary<,>)))
                     {
-                        var keyTypeCode = GetCqlType(type.GetTypeInfo().GetGenericArguments()[0], out IColumnInfo keyTypeInfo);
+                        var keyTypeCode = GetCqlType(type.GetTypeInfo().GetGenericArguments()[0], out var keyTypeInfo);
                         valueTypeCode = GetCqlType(type.GetTypeInfo().GetGenericArguments()[1], out valueTypeInfo);
                         typeInfo = new MapColumnInfo
                         {
@@ -199,7 +199,7 @@ namespace Scylla.Net.Serialization
                     }
                     if (interfaces.Any(t => t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeof(ISet<>)))
                     {
-                        var keyTypeCode = GetCqlType(type.GetTypeInfo().GetGenericArguments()[0], out IColumnInfo keyTypeInfo);
+                        var keyTypeCode = GetCqlType(type.GetTypeInfo().GetGenericArguments()[0], out var keyTypeInfo);
                         typeInfo = new SetColumnInfo
                         {
                             KeyTypeCode = keyTypeCode,
@@ -223,7 +223,7 @@ namespace Scylla.Net.Serialization
                         {
                             var dataType = new ColumnDesc
                             {
-                                TypeCode = GetCqlType(t, out IColumnInfo tupleSubTypeInfo),
+                                TypeCode = GetCqlType(t, out var tupleSubTypeInfo),
                                 TypeInfo = tupleSubTypeInfo
                             };
                             return dataType;
@@ -305,7 +305,7 @@ namespace Scylla.Net.Serialization
                 return true;
             }
             var type = value.GetType();
-            if (_primitiveSerializers.TryGetValue(type, out ITypeSerializer typeSerializer))
+            if (_primitiveSerializers.TryGetValue(type, out var typeSerializer))
             {
                 var cqlType = typeSerializer.CqlType;
                 //Its a single type, if the types match -> go ahead
@@ -367,7 +367,7 @@ namespace Scylla.Net.Serialization
                 return null;
             }
             var type = value.GetType();
-            if (_primitiveSerializers.TryGetValue(type, out ITypeSerializer typeSerializer))
+            if (_primitiveSerializers.TryGetValue(type, out var typeSerializer))
             {
                 return typeSerializer.Serialize((byte)version, value);
             }

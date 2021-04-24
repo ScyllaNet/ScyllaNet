@@ -28,19 +28,23 @@ namespace Scylla.Net
         internal static RoutingKey Compose(params RoutingKey[] components)
         {
             if (components.Length == 0)
+            {
                 throw new ArgumentOutOfRangeException();
+            }
 
             if (components.Length == 1)
+            {
                 return components[0];
+            }
 
-            int totalLength = 0;
+            var totalLength = 0;
             foreach (var bb in components)
             {
                 totalLength += 2 + bb.RawRoutingKey.Length + 1;
             }
 
             var res = new byte[totalLength];
-            int idx = 0;
+            var idx = 0;
             foreach (var bb in components)
             {
                 PutShortLength(res, idx, bb.RawRoutingKey.Length);

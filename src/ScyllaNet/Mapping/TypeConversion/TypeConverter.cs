@@ -207,10 +207,12 @@ namespace Scylla.Net.Mapping.TypeConversion
             // Allow for user-defined conversions
             Delegate converter = GetUserDefinedFromDbConverter<TDatabase, TPoco>();
             if (converter != null)
+            {
                 return converter;
+            }
 
-            Type dbType = typeof (TDatabase);
-            Type pocoType = typeof (TPoco);
+            var dbType = typeof (TDatabase);
+            var pocoType = typeof (TPoco);
 
             if (pocoType == dbType)
             {
@@ -273,11 +275,11 @@ namespace Scylla.Net.Mapping.TypeConversion
 
             if (dbType.GetTypeInfo().IsGenericType || dbType.GetInterfaces().Any(i => i.IsGenericType))
             {
-                Type sourceEnumerableInterface = dbType.IsGenericType && dbType.GetGenericTypeDefinition() == typeof(IEnumerable<>) 
+                var sourceEnumerableInterface = dbType.IsGenericType && dbType.GetGenericTypeDefinition() == typeof(IEnumerable<>) 
                     ? dbType 
                     : dbType.GetInterfaces().FirstOrDefault(
                         i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-                Type[] sourceGenericArgs = sourceEnumerableInterface != null 
+                var sourceGenericArgs = sourceEnumerableInterface != null 
                     ? sourceEnumerableInterface.GetTypeInfo().GetGenericArguments()
                     : dbType.GetTypeInfo().GetGenericArguments();
                 if (pocoType.IsArray && sourceEnumerableInterface != null)
@@ -291,7 +293,7 @@ namespace Scylla.Net.Mapping.TypeConversion
                     var targetGenericType = pocoType.GetTypeInfo().GetGenericTypeDefinition();
                     var targetGenericArgs = pocoType.GetTypeInfo().GetGenericArguments();
                     
-                    Type sourceDictionaryInterface = dbType.IsGenericType && dbType.GetGenericTypeDefinition() == typeof(IDictionary<,>) 
+                    var sourceDictionaryInterface = dbType.IsGenericType && dbType.GetGenericTypeDefinition() == typeof(IDictionary<,>) 
                         ? dbType 
                         : dbType.GetInterfaces().FirstOrDefault(
                             i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDictionary<,>));
@@ -413,8 +415,8 @@ namespace Scylla.Net.Mapping.TypeConversion
                 return converter;
             }
 
-            Type pocoType = typeof (TPoco);
-            Type dbType = typeof (TDatabase);
+            var pocoType = typeof (TPoco);
+            var dbType = typeof (TDatabase);
 
             if (typeof(TPoco) == typeof(TDatabase))
             {
@@ -463,7 +465,7 @@ namespace Scylla.Net.Mapping.TypeConversion
                     return enumConverter;
                 }
 
-                Type underlyingPocoType = Nullable.GetUnderlyingType(pocoType);
+                var underlyingPocoType = Nullable.GetUnderlyingType(pocoType);
                 if (underlyingPocoType != null && underlyingPocoType.GetTypeInfo().IsEnum)
                 {
                     Func<TPoco, string> enumConverter = NullableEnumStringMapper<TPoco>.MapEnumToString;
@@ -477,8 +479,8 @@ namespace Scylla.Net.Mapping.TypeConversion
             }
             if (typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(dbType) && dbType.GetTypeInfo().IsGenericType)
             {
-                Type dbGenericType = dbType.GetTypeInfo().GetGenericTypeDefinition();
-                Type[] dbTypeGenericArgs = dbType.GetTypeInfo().GetGenericArguments();
+                var dbGenericType = dbType.GetTypeInfo().GetGenericTypeDefinition();
+                var dbTypeGenericArgs = dbType.GetTypeInfo().GetGenericArguments();
                 Type[] pocoTypeGenericArgs = null;
                 
                 if (pocoType.GetTypeInfo().IsArray)

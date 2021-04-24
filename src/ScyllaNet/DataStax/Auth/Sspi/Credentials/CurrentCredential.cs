@@ -28,8 +28,8 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
         private void Init( CredentialUse use )
         {
             string packageName;
-            TimeStamp rawExpiry = new TimeStamp();
-            SecurityStatus status = SecurityStatus.InternalError;
+            var rawExpiry = new TimeStamp();
+            var status = SecurityStatus.InternalError;
 
             // -- Package --
             // Copy off for the call, since this.SecurityPackage is a property.

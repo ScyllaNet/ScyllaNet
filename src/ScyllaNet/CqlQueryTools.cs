@@ -93,7 +93,7 @@ namespace Scylla.Net
             var stringBuilder = new StringBuilder();
             if (value != null)
             {
-                foreach (byte b in value)
+                foreach (var b in value)
                 {
                     stringBuilder.Append(HexStringTable[b]);
                 }

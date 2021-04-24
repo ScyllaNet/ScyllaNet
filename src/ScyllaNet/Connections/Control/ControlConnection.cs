@@ -242,7 +242,7 @@ namespace Scylla.Net.Connections.Control
         private async Task Connect(bool isInitializing)
         {
             // lazy iterator of endpoints to try for the control connection
-            IEnumerable<Task<IEnumerable<IConnectionEndPoint>>> endPointResolutionTasksLazyIterator =
+            var endPointResolutionTasksLazyIterator =
                 Enumerable.Empty<Task<IEnumerable<IConnectionEndPoint>>>();
 
             var attemptedContactPoints = new ConcurrentDictionary<IContactPoint, object>();

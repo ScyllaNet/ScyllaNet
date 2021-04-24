@@ -555,7 +555,7 @@ namespace Scylla.Net
 
         private async Task ReprepareAllQueries(Host host)
         {
-            ICollection<PreparedStatement> preparedQueries = InternalRef.PreparedQueries.Values;
+            var preparedQueries = InternalRef.PreparedQueries.Values;
             IEnumerable<IInternalSession> sessions = _connectedSessions;
 
             if (preparedQueries.Count == 0)

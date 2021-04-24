@@ -185,7 +185,10 @@ namespace Scylla.Net.Serialization.Graph.GraphSON2
             {
                 var property = e as JProperty;
                 if (property == null)
+                {
                     throw new InvalidOperationException($"Cannot read graphson: {jtokenDict}");
+                }
+
                 dict.Add(property.Name, ToObject(property.Value));
             }
             return dict;

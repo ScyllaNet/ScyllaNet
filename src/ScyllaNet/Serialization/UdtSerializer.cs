@@ -33,13 +33,13 @@ namespace Scylla.Net.Serialization
 
         protected internal virtual UdtMap GetUdtMap(string name)
         {
-            _udtMapsByName.TryGetValue(name, out UdtMap map);
+            _udtMapsByName.TryGetValue(name, out var map);
             return map;
         }
 
         protected internal virtual UdtMap GetUdtMap(Type type)
         {
-            _udtMapsByClrType.TryGetValue(type, out UdtMap map);
+            _udtMapsByClrType.TryGetValue(type, out var map);
             return map;
         }
 

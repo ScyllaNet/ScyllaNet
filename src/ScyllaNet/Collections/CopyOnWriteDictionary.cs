@@ -101,7 +101,7 @@ namespace Scylla.Net.Collections
 
             lock (_writeLock)
             {
-                if (_map.TryGetValue(key, out TValue existingValue))
+                if (_map.TryGetValue(key, out var existingValue))
                 {
                     return existingValue;
                 }
@@ -213,7 +213,7 @@ namespace Scylla.Net.Collections
 
             lock (_writeLock)
             {
-                if (_map.TryGetValue(key, out TValue existingValue))
+                if (_map.TryGetValue(key, out var existingValue))
                 {
                     return existingValue;
                 }

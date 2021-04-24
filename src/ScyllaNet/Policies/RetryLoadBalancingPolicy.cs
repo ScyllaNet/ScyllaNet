@@ -34,22 +34,28 @@ namespace Scylla.Net
 
         public IEnumerable<Host> NewQueryPlan(string keyspace, IStatement query)
         {
-            IReconnectionSchedule schedule = ReconnectionPolicy.NewSchedule();
+            var schedule = ReconnectionPolicy.NewSchedule();
             while (true)
             {
-                IEnumerable<Host> childQueryPlan = LoadBalancingPolicy.NewQueryPlan(keyspace, query);
-                foreach (Host host in childQueryPlan)
+                var childQueryPlan = LoadBalancingPolicy.NewQueryPlan(keyspace, query);
+                foreach (var host in childQueryPlan)
+                {
                     yield return host;
+                }
 
                 if (ReconnectionEvent != null)
                 {
                     var ea = new RetryLoadBalancingPolicyEventArgs(schedule.NextDelayMs());
                     ReconnectionEvent(this, ea);
                     if (ea.Cancel)
+                    {
                         break;
+                    }
                 }
                 else
+                {
                     Thread.Sleep((int) schedule.NextDelayMs());
+                }
             }
         }
     }

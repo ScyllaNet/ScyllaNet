@@ -94,7 +94,7 @@ namespace Scylla.Net.Helpers
         {
             var cpuInfoLines = File.ReadAllLines(@"/proc/cpuinfo");
             var regex = new Regex(@"^model name\s+:\s+(.+)", RegexOptions.Compiled);
-            foreach (string cpuInfoLine in cpuInfoLines)
+            foreach (var cpuInfoLine in cpuInfoLines)
             {
                 var match = regex.Match(cpuInfoLine);
                 if (match.Groups[0].Success)

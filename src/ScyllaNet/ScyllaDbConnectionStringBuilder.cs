@@ -73,14 +73,20 @@ namespace Scylla.Net
         private T DefaultIfNotExists<T>(string name, T def)
         {
             if (!base.ContainsKey(name))
+            {
                 return def;
+            }
+
             return (T) Convert.ChangeType(base[name], typeof (T));
         }
 
         private T ThrowIfNotExists<T>(string name)
         {
             if (!base.ContainsKey(name))
+            {
                 throw new FormatException(name + " value are missing in connection string");
+            }
+
             return (T) Convert.ChangeType(base[name], typeof (T));
         }
     }

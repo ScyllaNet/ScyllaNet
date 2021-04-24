@@ -19,16 +19,21 @@ namespace Scylla.Net
         public int CompareTo(object obj)
         {
             var other = obj as M3PToken;
-            long otherValue = other._value;
+            var otherValue = other._value;
             return _value < otherValue ? -1 : (_value == otherValue) ? 0 : 1;
         }
 
         public override bool Equals(object obj)
         {
             if (this == obj)
+            {
                 return true;
+            }
+
             if (obj == null || GetType() != obj.GetType())
+            {
                 return false;
+            }
 
             return _value == ((M3PToken) obj)._value;
         }
@@ -67,12 +72,12 @@ namespace Scylla.Net
                 // only return the first 64-bits of the result since that's all M3P uses.
 
                 //Convert to sbyte as in Java byte are signed
-                sbyte[] data = (sbyte[])(Array)bytes;
+                var data = (sbyte[])(Array)bytes;
 
-                int offset = 0;
-                int length = data.Length;
+                var offset = 0;
+                var length = data.Length;
 
-                int nblocks = length >> 4; // Process as 128-bit blocks.
+                var nblocks = length >> 4; // Process as 128-bit blocks.
 
                 long h1 = 0;
                 long h2 = 0;
@@ -85,10 +90,10 @@ namespace Scylla.Net
                 //----------
                 // body
 
-                for (int i = 0; i < nblocks; i++)
+                for (var i = 0; i < nblocks; i++)
                 {
-                    long k1 = GetBlock(data, offset, i * 2 + 0);
-                    long k2 = GetBlock(data, offset, i * 2 + 1);
+                    var k1 = GetBlock(data, offset, i * 2 + 0);
+                    var k2 = GetBlock(data, offset, i * 2 + 1);
 
                     k1 *= c1; 
                     k1 = Rotl64(k1, 31); 
@@ -194,8 +199,8 @@ namespace Scylla.Net
 
             private static long GetBlock(sbyte[] key, int offset, int index)
             {
-                int i8 = index << 3;
-                int blockOffset = offset + i8;
+                var i8 = index << 3;
+                var blockOffset = offset + i8;
                 return ((long)key[blockOffset + 0] & 0xff) + (((long)key[blockOffset + 1] & 0xff) << 8) +
                        (((long)key[blockOffset + 2] & 0xff) << 16) + (((long)key[blockOffset + 3] & 0xff) << 24) +
                        (((long)key[blockOffset + 4] & 0xff) << 32) + (((long)key[blockOffset + 5] & 0xff) << 40) +

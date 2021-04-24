@@ -67,13 +67,13 @@ namespace Scylla.Net.DataStax.Auth
 
         private byte[] FirstTransition(byte[] challenge)
         {
-            _context.Init(null, out byte[] resultToken);
+            _context.Init(null, out var resultToken);
             return resultToken;
         }
 
         private byte[] SecondTransition(byte[] challenge)
         {
-            _context.Init(challenge, out byte[] resultToken);
+            _context.Init(challenge, out var resultToken);
             return resultToken;
         }
 

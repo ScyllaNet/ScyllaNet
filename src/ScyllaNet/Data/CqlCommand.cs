@@ -103,7 +103,9 @@ namespace Scylla.Net.Data
             set
             {
                 if (!(value is CqlConnection))
+                {
                     throw new InvalidOperationException();
+                }
 
                 CqlConnection = (CqlConnection)value;
             }
@@ -169,9 +171,13 @@ namespace Scylla.Net.Data
                 if (cm.StartsWith("CREATE ")
                     || cm.StartsWith("DROP ")
                     || cm.StartsWith("ALTER "))
+                {
                     managedConnection.Execute(_commandText, ConsistencyLevel);
+                }
                 else
+                {
                     managedConnection.Execute(_commandText, ConsistencyLevel);
+                }
             }
             else //if _preparedStatement != null
             {
@@ -180,9 +186,13 @@ namespace Scylla.Net.Data
                 if (cm.StartsWith("CREATE ")
                     || cm.StartsWith("DROP ")
                     || cm.StartsWith("ALTER "))
+                {
                     managedConnection.Execute(query);
+                }
                 else
+                {
                     managedConnection.Execute(query);
+                }
             }
 
             return -1;

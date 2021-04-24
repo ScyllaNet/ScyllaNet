@@ -47,11 +47,11 @@ namespace Scylla.Net
         {
             TypeSerializer.CheckArgument<decimal>(value);
             var decimalValue = (decimal)value;
-            int[] bits = decimal.GetBits(decimalValue);
+            var bits = decimal.GetBits(decimalValue);
 
-            int scale = (bits[3] >> 16) & 31;
+            var scale = (bits[3] >> 16) & 31;
 
-            byte[] scaleBytes = BeConverter.GetBytes(scale);
+            var scaleBytes = BeConverter.GetBytes(scale);
 
             var bigintBytes = new byte[13]; // 13th byte is for making sure that the number is positive
             Buffer.BlockCopy(bits, 0, bigintBytes, 0, 12);

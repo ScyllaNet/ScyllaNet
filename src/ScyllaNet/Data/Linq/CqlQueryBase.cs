@@ -176,7 +176,7 @@ namespace Scylla.Net.Data.Linq
         private async Task<IEnumerable<TEntity>> ExecuteCqlQueryAsync(string executionProfile)
         {
             var visitor = new CqlExpressionVisitor(PocoData, Table.Name, Table.KeyspaceName);
-            var cql = visitor.GetSelect(Expression, out object[] values);
+            var cql = visitor.GetSelect(Expression, out var values);
             var rs = await InternalExecuteWithProfileAsync(executionProfile, cql, values).ConfigureAwait(false);
             return AdaptResult(cql, rs);
         }

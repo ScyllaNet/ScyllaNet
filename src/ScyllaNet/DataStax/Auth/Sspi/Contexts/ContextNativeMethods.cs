@@ -190,8 +190,8 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             SecureBufferAdapter bufferAdapter,
             int sequenceNumber )
         {
-            SecurityStatus status = SecurityStatus.InternalError;
-            bool gotRef = false;
+            var status = SecurityStatus.InternalError;
+            var gotRef = false;
 
             RuntimeHelpers.PrepareConstrainedRegions();
             try
@@ -241,8 +241,8 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             SecureBufferAdapter bufferAdapter, 
             int sequenceNumber )
         {
-            SecurityStatus status = SecurityStatus.InvalidHandle;
-            bool gotRef = false;
+            var status = SecurityStatus.InvalidHandle;
+            var gotRef = false;
 
             RuntimeHelpers.PrepareConstrainedRegions();
             try
@@ -292,8 +292,8 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             SecureBufferAdapter adapter,
             int sequenceNumber )
         {
-            bool gotRef = false;
-            SecurityStatus status = SecurityStatus.InternalError;
+            var gotRef = false;
+            var status = SecurityStatus.InternalError;
 
             RuntimeHelpers.PrepareConstrainedRegions();
             try
@@ -343,8 +343,8 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             SecureBufferAdapter adapter,
             int sequenceNumber )
         {
-            bool gotRef = false;
-            SecurityStatus status = SecurityStatus.InternalError;
+            var gotRef = false;
+            var status = SecurityStatus.InternalError;
 
             RuntimeHelpers.PrepareConstrainedRegions();
             try

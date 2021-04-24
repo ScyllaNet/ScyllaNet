@@ -18,7 +18,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Credentials
         [ReliabilityContract( Consistency.WillNotCorruptState, Cer.Success )]
         protected override bool ReleaseHandle()
         {
-            SecurityStatus status = CredentialNativeMethods.FreeCredentialsHandle(
+            var status = CredentialNativeMethods.FreeCredentialsHandle(
                 ref base.rawHandle
             );
 

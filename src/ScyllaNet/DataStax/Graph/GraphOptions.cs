@@ -98,7 +98,7 @@ namespace Scylla.Net.DataStax.Graph
             get
             {
                 //4 bytes for consistency representation and 1 bit for null flag
-                long value = Interlocked.Read(ref _readConsistencyLevel);
+                var value = Interlocked.Read(ref _readConsistencyLevel);
                 if (value == long.MinValue)
                 {
                     return null;
@@ -154,7 +154,7 @@ namespace Scylla.Net.DataStax.Graph
             get
             {
                 //4 bytes for consistency representation and 1 bit for null flag
-                long value = Interlocked.Read(ref _writeConsistencyLevel);
+                var value = Interlocked.Read(ref _writeConsistencyLevel);
                 if (value == long.MinValue)
                 {
                     return null;
@@ -380,7 +380,7 @@ namespace Scylla.Net.DataStax.Graph
 
         private static string GetConsistencyName(ConsistencyLevel consistency)
         {
-            if (!GraphOptions.ConsistencyLevelNames.TryGetValue(consistency, out string name))
+            if (!GraphOptions.ConsistencyLevelNames.TryGetValue(consistency, out var name))
             {
                 //If not defined, use upper case representation
                 name = consistency.ToString().ToUpper();

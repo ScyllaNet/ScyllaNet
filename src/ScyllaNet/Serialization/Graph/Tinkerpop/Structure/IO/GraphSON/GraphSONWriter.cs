@@ -74,7 +74,9 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
         protected GraphSONWriter(IReadOnlyDictionary<Type, IGraphSONSerializer> customSerializerByType)
         {
             foreach (var serializerAndType in customSerializerByType)
+            {
                 Serializers[serializerAndType.Key] = serializerAndType.Value;
+            }
         }
 
         /// <summary>
@@ -99,11 +101,20 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
             IGraphSONSerializer serializer = TryGetSerializerFor(type);
 
             if (serializer != null)
+            {
                 return serializer.Dictify(objectData, this);
+            }
+
             if (IsDictionaryType(type))
+            {
                 return DictToGraphSONDict(objectData);
+            }
+
             if (IsCollectionType(type))
+            {
                 return CollectionToGraphSONCollection(objectData);
+            }
+
             return objectData;
         }
 
@@ -114,10 +125,13 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
                 return Serializers[type];
             }
             foreach (var supportedType in Serializers.Keys)
+            {
                 if (supportedType.IsAssignableFrom(type))
                 {
                     return Serializers[supportedType];
                 }
+            }
+
             return null;
         }
 
@@ -130,7 +144,10 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
         {
             var graphSONDict = new Dictionary<string, dynamic>();
             foreach (var keyValue in dict)
+            {
                 graphSONDict.Add(ToDict(keyValue.Key), ToDict(keyValue.Value));
+            }
+
             return graphSONDict;
         }
 
@@ -142,7 +159,9 @@ namespace Scylla.Net.Serialization.Graph.Tinkerpop.Structure.IO.GraphSON
         private IEnumerable<dynamic> CollectionToGraphSONCollection(dynamic collection)
         {
             foreach (var e in collection)
+            {
                 yield return ToDict(e);
+            }
         }
     }
 }

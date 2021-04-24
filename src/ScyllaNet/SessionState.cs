@@ -29,12 +29,12 @@ namespace Scylla.Net
 
         public int GetOpenConnections(Host host)
         {
-            return !_infos.TryGetValue(host, out HostStateInfo info) ? 0 : info.OpenConnections;
+            return !_infos.TryGetValue(host, out var info) ? 0 : info.OpenConnections;
         }
 
         public int GetInFlightQueries(Host host)
         {
-            return !_infos.TryGetValue(host, out HostStateInfo info) ? 0 : info.InFlightQueries;
+            return !_infos.TryGetValue(host, out var info) ? 0 : info.InFlightQueries;
         }
 
         public override string ToString()

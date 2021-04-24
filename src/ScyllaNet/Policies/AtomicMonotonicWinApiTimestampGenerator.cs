@@ -20,7 +20,7 @@ namespace Scylla.Net
         
         protected sealed override long GetTimestamp()
         {
-            GetSystemTimePreciseAsFileTime(out long preciseTime);
+            GetSystemTimePreciseAsFileTime(out var preciseTime);
             var timestamp = DateTime.FromFileTimeUtc(preciseTime);
             return (timestamp.Ticks - UnixEpochTicks)/TicksPerMicrosecond;
         }

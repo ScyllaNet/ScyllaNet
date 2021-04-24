@@ -14,7 +14,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
         [ReliabilityContract( Consistency.WillNotCorruptState, Cer.Success )]
         protected override bool ReleaseHandle()
         {
-            SecurityStatus status = ContextNativeMethods.DeleteSecurityContext(
+            var status = ContextNativeMethods.DeleteSecurityContext(
                 ref rawHandle
             );
 

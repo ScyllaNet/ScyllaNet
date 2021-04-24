@@ -125,7 +125,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
             SecureBuffer paddingBuffer;
             SecureBufferAdapter adapter;
 
-            SecurityStatus status = SecurityStatus.InvalidHandle;
+            var status = SecurityStatus.InvalidHandle;
             CheckLifecycle();
 
             sizes = QueryBufferSizes();
@@ -151,7 +151,7 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
                 throw new SspiException( "Failed to encrypt message", status );
             }
 
-            int position = 0;
+            var position = 0;
             
             // Return 1 buffer with the 3 buffers joined
             var result = new byte[trailerBuffer.Length + dataBuffer.Length + paddingBuffer.Length];
@@ -216,9 +216,9 @@ namespace Scylla.Net.DataStax.Auth.Sspi.Contexts
         /// <returns></returns>
         private SecPkgContext_Sizes QueryBufferSizes()
         {
-            SecPkgContext_Sizes sizes = new SecPkgContext_Sizes();
-            SecurityStatus status = SecurityStatus.InternalError;
-            bool gotRef = false;
+            var sizes = new SecPkgContext_Sizes();
+            var status = SecurityStatus.InternalError;
+            var gotRef = false;
 
             RuntimeHelpers.PrepareConstrainedRegions();
             try
